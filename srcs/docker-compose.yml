@@ -1,0 +1,61 @@
+services:
+  backend-echo:
+    image: PixelPassion/backend-echo:${VERSION:-latest}
+    build:
+      context: ./backend-echo
+      dockerfile: Dockerfile
+    restart: always
+    # 本番環境では開ける必要がない。開発では、直接リクエストを送れたりするので開けといた方が便利。
+    ports:
+      - "${BACKEND_ECHO_PORT}:${BACKEND_ECHO_PORT}"
+    env_file:
+      - .env
+    networks:
+      - app-network
+    
+  frontend-deno:
+    image: PixelPassion/frontend-deno:${VERSION:-latest}
+    build:
+      context: ./frontend-deno
+      dockerfile: Dockerfile
+    restart: always
+    # 本番環境では開ける必要がない。開発では、直接リクエストを送れたりするので開けといた方が便利。
+    ports:
+      - "${FRONTEND_DENO_PORT}:${FRONTEND_DENO_PORT}"
+    env_file:
+      - .env
+    networks:
+      - app-network
+  
+  # proxy-nginx:
+  #   image: PixelPassion/proxy-nginx:${VERSION:-latest}
+  #   build:
+  #     context: ./proxy-nginx
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   ports:
+  #     - "${PROXY_NGINX_PORT}:${PROXY_NGINX_PORT}"
+  #   env_file:
+  #     - .env
+  #   networks:
+  #     - app-network
+  
+  # db-postgres:
+  #   image: PixelPassion/db-postgres:${VERSION:-latest}
+  #   build:
+  #     context: ./db-postgres
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   env_file:
+  #     - .env
+  #   # environment:
+  #   #   DATABASE_URL: postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:${DB_POSTGRES_PORT}/${DATABASE_DB}
+  #   ports:
+  #     - "${DB_POSTGRES_PORT}:${DB_POSTGRES_PORT}"
+  #   networks:
+  #     - app-network
+  
+networks:
+  app-network:
+    name: PixelPassion
+    driver: bridge

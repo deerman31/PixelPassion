@@ -1,3 +1,3 @@
 # Backend
 
-This was implemented in pure Golang without using frameworks such as Echo or Gin.
+Backend was implemented in pure Golang without using frameworks such as Echo or Gin.

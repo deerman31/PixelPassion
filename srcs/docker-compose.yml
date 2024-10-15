@@ -13,15 +13,15 @@ services:
     networks:
       - app-network
     
-  frontend-deno:
-    image: PixelPassion/frontend-deno:${VERSION:-latest}
+  frontend-next:
+    image: PixelPassion/frontend-next:${VERSION:-latest}
     build:
-      context: ./frontend-deno
+      context: ./frontend-next
       dockerfile: Dockerfile
     restart: always
     # 本番環境では開ける必要がない。開発では、直接リクエストを送れたりするので開けといた方が便利。
     ports:
-      - "${FRONTEND_DENO_PORT}:${FRONTEND_DENO_PORT}"
+      - "${FRONTEND_NEXT_PORT}:${FRONTEND_NEXT_PORT}"
     env_file:
       - .env
     networks:

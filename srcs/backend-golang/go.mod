@@ -1,4 +1,4 @@
-module meguriai-backend
+module backend-golang
 
 go 1.23.2
 

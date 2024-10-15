@@ -1,9 +1,9 @@
 package main
 
 import (
+	"backend-golang/db"
 	"fmt"
 	"log"
-	"meguriai-backend/db"
 	"net/http"
 	"os"
 )

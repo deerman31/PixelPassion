@@ -38,9 +38,10 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
 
 # 実行ステージ
+# 実行ステージであるため、golangのイメージをベースにする必要はない
 FROM debian:bullseye-slim
 
-ENV PORT=${BACKEND_ECHO_PORT}
+ENV PORT=${BACKEND_GOLANG_PORT}
 
 # 必要なパッケージのインストールとクリーンアップ（オプション）
 # セキュリティ: ca-certificatesは安全なHTTPS接続に必要です。
@@ -48,6 +49,7 @@ ENV PORT=${BACKEND_ECHO_PORT}
 # クリーンアップ: /var/lib/apt/lists/*の削除でイメージサイズを削減します。
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
+    netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # セキュリティのために非root ユーザーを作成
@@ -66,6 +68,12 @@ WORKDIR /app
 # マルチステージビルド: --from=builderで前段階の成果物を参照します。
 COPY --from=builder /app/main .
 
+
+#COPY ./tool/backend-boot.sh .
+COPY --from=builder /app/tool/backend-boot.sh .
+#COPY --from=builder /app/tool/backend-boot.sh .
+RUN chmod +x backend-boot.sh
+
 # 非root ユーザーに切り替え
 USER appuser
 
@@ -73,4 +81,5 @@ USER appuser
 EXPOSE ${PORT}
 
 # コンテナ起動時に実行されるコマンド
-CMD ["./main"]
+#CMD ["./main"]
+CMD ["./backend-boot.sh"]

@@ -1,0 +1,4 @@
+.env
+
+# mysqlのvolumeに設定したディレクトリ
+mysql-data

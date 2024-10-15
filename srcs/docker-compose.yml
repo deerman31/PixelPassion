@@ -1,15 +1,16 @@
 services:
-  backend-echo:
-    image: PixelPassion/backend-echo:${VERSION:-latest}
+  backend-golang:
+    image: PixelPassion/backend-golang:${VERSION:-latest}
     build:
-      context: ./backend-echo
+      context: ./backend-golang
       dockerfile: Dockerfile
     restart: always
     # 本番環境では開ける必要がない。開発では、直接リクエストを送れたりするので開けといた方が便利。
     ports:
-      - "${BACKEND_ECHO_PORT}:${BACKEND_ECHO_PORT}"
-    env_file:
-      - .env
+      - "${BACKEND_GOLANG_PORT}:${BACKEND_GOLANG_PORT}"
+    env_file: .env
+    depends_on:
+      - db-mysql
     networks:
       - app-network
     
@@ -22,39 +23,41 @@ services:
     # 本番環境では開ける必要がない。開発では、直接リクエストを送れたりするので開けといた方が便利。
     ports:
       - "${FRONTEND_NEXT_PORT}:${FRONTEND_NEXT_PORT}"
-    env_file:
-      - .env
+    env_file: .env
+    depends_on:
+      - backend-golang
     networks:
       - app-network
   
-  # proxy-nginx:
-  #   image: PixelPassion/proxy-nginx:${VERSION:-latest}
-  #   build:
-  #     context: ./proxy-nginx
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   ports:
-  #     - "${PROXY_NGINX_PORT}:${PROXY_NGINX_PORT}"
-  #   env_file:
-  #     - .env
-  #   networks:
-  #     - app-network
+  proxy-nginx:
+    image: PixelPassion/proxy-nginx:${VERSION:-latest}
+    build:
+      context: ./proxy-nginx
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "${PROXY_NGINX_PORT}:${PROXY_NGINX_PORT}"
+    env_file: .env
+    depends_on:
+      - frontend-next
+      - backend-golang
+    networks:
+      - app-network
   
-  # db-postgres:
-  #   image: PixelPassion/db-postgres:${VERSION:-latest}
-  #   build:
-  #     context: ./db-postgres
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   env_file:
-  #     - .env
-  #   # environment:
-  #   #   DATABASE_URL: postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:${DB_POSTGRES_PORT}/${DATABASE_DB}
-  #   ports:
-  #     - "${DB_POSTGRES_PORT}:${DB_POSTGRES_PORT}"
-  #   networks:
-  #     - app-network
+  db-mysql:
+    image: mysql:latest
+    restart: always
+    env_file: .env
+    ports:
+      - "${MYSQL_PORT}:${MYSQL_PORT}"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    networks:
+      - app-network
   
+volumes:
+  mysql-data:
+
 networks:
   app-network:
     name: PixelPassion

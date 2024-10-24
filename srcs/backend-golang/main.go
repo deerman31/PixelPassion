@@ -4,26 +4,36 @@ import (
 	"backend-golang/db"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
+
+	"github.com/labstack/echo/v4"
 )
 
-
 func main() {
-	 // データベースに接続
-	 db, err := db.ConnectDB()
-	 if err != nil {
-		 log.Fatal(err)
-	 }
-	 defer db.Close()
- 
-	 fmt.Println("Successfully connected to the database")
+	// データベースに接続
+	db, err := db.ConnectDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+	fmt.Println("Successfully connected to the database")
+	
+	port, err := portSet()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	r := rooting()
+	e := echo.New()
 
+	routing(e, db)
+
+	e.Logger.Fatal(e.Start(":" + port))
+}
+
+func portSet() (string, error) {
 	port := os.Getenv("BACKEND_GOLANG_PORT")
 	if port == "" {
-        log.Fatal("Error: BACKEND_GOLANG_PORT is not set")
+		return "", fmt.Errorf("Error: BACKEND_GOLANG_PORT is not set")
 	}
-    log.Fatal(http.ListenAndServe(":" + port, r))
+	return port, nil
 }

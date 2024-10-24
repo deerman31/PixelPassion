@@ -45,20 +45,17 @@ services:
       - app-network
   
   db-mysql:
-    image: mysql:latest
+    image: PixelPassion/db-mysql:${VERSION:-latest}
+    build:
+      context: ./db-mysql
+      dockerfile: Dockerfile
     restart: always
     env_file: .env
     ports:
       - "${MYSQL_PORT}:${MYSQL_PORT}"
-    volumes:
-      - ./db-mysql/mysql-data:/var/lib/mysql
-      - ./db-mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app-network
   
-volumes:
-  mysql-data:
-
 networks:
   app-network:
     name: PixelPassion

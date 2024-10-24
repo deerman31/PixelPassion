@@ -2,21 +2,27 @@ package handler
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/labstack/echo/v4"
 )
 
 type SignupRequest struct {
-	Username  string `json:"username"`
-	Email     string `json:"email"`
-	Lastname  string `json:"lastname"`
-	Firstname string `json:"firstname"`
-	Password  string `json:"password"`
-    IsGpsEnabled bool `json:"isGpsEnabled"`
-    Gender string `json:"gender"`
-    SexualOrientation string `json:"sexual_orientation"`
-    Eria string `json:"eria"`
+	Username  string `json:"username" validate:"required,username"`
+	Email     string `json:"email" validate:"required,email"`
+	Lastname  string `json:"lastname" validate:"required,name"`
+	Firstname string `json:"firstname" validate:"required,name"`
+	Password  string `json:"password" validate:"required,password"`
+
+	IsGpsEnabled bool `json:"isGpsEnabled" validate:"required"`
+
+	Gender            string `json:"gender" validate:"required,oneof=male female"`
+	SexualOrientation string `json:"sexual_orientation" validate:"required,oneof=heterosexual homosexual bisexual"`
+
+	Eria string `json:"eria" validate:"required,eria"`
 }
 
 func Signup(db *sql.DB) echo.HandlerFunc {
@@ -27,6 +33,10 @@ func Signup(db *sql.DB) echo.HandlerFunc {
 		}
 
 		// validationをここで行う
+		// Echo のグローバルバリデータを使用
+		if err := c.Validate(req); err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+		}
 
 		// トランザクションを開始
 		tx, err := db.Begin()
@@ -35,19 +45,23 @@ func Signup(db *sql.DB) echo.HandlerFunc {
 		}
 		defer tx.Rollback() // エラーが発生した場合はロールバック
 
-		// ユーザー名の重複チェック
-		if err := checkUsernameExists(tx, req.Username); err != nil {
-			return c.JSON(http.StatusConflict, map[string]string{"error": err.Error()})
+		// usernameとemailの重複をcheck
+		n, err := checkDuplicateUserCredentials(tx, req.Username, req.Email)
+		if err != nil {
+			return c.JSON(n, map[string]string{"error": err.Error()})
 		}
 
-		if err := checkEmailExists(tx, req.Email); err != nil {
-			return c.JSON(http.StatusConflict, map[string]string{"error": err.Error()})
+		// このタイミングでパスワードをハッシュ化する
+		hashedBytes, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		}
+		req.Password = string(hashedBytes)
 
- 		// ユーザーの登録
- 		if err := createUser(tx, req); err != nil {
- 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create user"})
- 		}
+		// ユーザーの登録
+		if err := createUser(tx, req); err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create user"})
+		}
 
 		// トランザクションをコミット
 		if err = tx.Commit(); err != nil {
@@ -58,28 +72,28 @@ func Signup(db *sql.DB) echo.HandlerFunc {
 	}
 }
 
-func checkUsernameExists(tx *sql.Tx, username string) error {
-	var exists bool
-	err := tx.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", username).Scan(&exists)
-	if err != nil {
-		return err
-	}
-	if exists {
-		return echo.NewHTTPError(http.StatusConflict, "Username already exists")
-	}
-	return nil
-}
-
-func checkEmailExists(tx *sql.Tx, email string) error {
-	var exists bool
-	err := tx.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)", email).Scan(&exists)
-	if err != nil {
-		return err
-	}
-	if exists {
-		return echo.NewHTTPError(http.StatusConflict, "Email already exists")
-	}
-	return nil
+func checkDuplicateUserCredentials(tx *sql.Tx, username, email string) (int, error) {
+	// 1つのクエリで両方をチェック
+    const query = `
+        SELECT 
+            EXISTS(SELECT 1 FROM users WHERE username = ?) as username_exists,
+            EXISTS(SELECT 1 FROM users WHERE email = ?) as email_exists
+	`
+	var usernameExists, emailExists bool
+    err := tx.QueryRow(query, username, email).Scan(&usernameExists, &emailExists)
+    if err != nil {
+        // エラーメッセージをより具体的に
+        return http.StatusInternalServerError, fmt.Errorf("failed to check credentials: %w", err)
+    }
+	// 存在チェックの順序を明確に
+    switch {
+    case usernameExists:
+        return http.StatusConflict, fmt.Errorf("username %s is already taken", username)
+    case emailExists:
+        return http.StatusConflict, fmt.Errorf("email %s is already registered", email)
+    default:
+        return http.StatusOK, nil
+    }
 }
 
 func createUser(tx *sql.Tx, req *SignupRequest) error {

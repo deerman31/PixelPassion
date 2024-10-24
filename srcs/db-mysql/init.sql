@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
     is_registered BOOLEAN DEFAULT FALSE, /* 本登録済みかどうか */
     is_gps BOOLEAN DEFAULT FALSE, /* 位置情報を利用するか */
     gender ENUM('male', 'female') NOT NULL DEFAULT 'male', /* 性別 */
-    sexual_orientation ENUM('heterosexual', 'homosexual', 'bisexual') NOT NULL DEFAULT 'bisexual' /* 性的指向 */
+    sexual_orientation ENUM('heterosexual', 'homosexual', 'bisexual') NOT NULL DEFAULT 'bisexual', /* 性的指向 */
     eria ENUM(
         'Hokkaido', 'Aomori', 'Iwate', 'Miyagi', 'Akita', 'Yamagata', 'Fukushima',
         'Ibaraki', 'Tochigi', 'Gunma', 'Saitama', 'Chiba', 'Tokyo', 'Kanagawa',

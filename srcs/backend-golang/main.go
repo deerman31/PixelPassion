@@ -19,7 +19,7 @@ func main() {
 	}
 	defer db.Close()
 	fmt.Println("Successfully connected to the database")
-	
+
 	port, err := portSet()
 	if err != nil {
 		log.Fatal(err)
@@ -32,7 +32,6 @@ func main() {
 
 	// カスタムバリデータの設定
 	e.Validator = validations.NewCustomValidator()
-
 
 	routing(e, db)
 
@@ -47,13 +46,12 @@ func portSet() (string, error) {
 	return port, nil
 }
 
-
 func setupMiddleware(e *echo.Echo) {
 	// 基本的なミドルウェアの設定
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},// 本番環境では適切なオリジンに設定してください
+		AllowOrigins: []string{"*"}, // 本番環境では適切なオリジンに設定してください
 		AllowMethods: []string{echo.GET, echo.PUT, echo.POST, echo.PATCH, echo.DELETE},
 	}))
 }

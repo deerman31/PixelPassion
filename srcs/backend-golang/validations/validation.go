@@ -31,7 +31,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 // バリデーションエラーのフォーマット
 func formatValidationError(err error) error {
 	var errMsgs []string
-	
+
 	for _, err := range err.(validator.ValidationErrors) {
 		switch err.Tag() {
 		case "required":
@@ -54,7 +54,6 @@ func formatValidationError(err error) error {
 			errMsgs = append(errMsgs, "Invalid prefecture")
 		}
 	}
-	
+
 	return fmt.Errorf("Validation failed: %s", strings.Join(errMsgs, "; "))
 }
-

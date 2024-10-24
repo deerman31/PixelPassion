@@ -74,26 +74,26 @@ func Signup(db *sql.DB) echo.HandlerFunc {
 
 func checkDuplicateUserCredentials(tx *sql.Tx, username, email string) (int, error) {
 	// 1つのクエリで両方をチェック
-    const query = `
+	const query = `
         SELECT 
             EXISTS(SELECT 1 FROM users WHERE username = ?) as username_exists,
             EXISTS(SELECT 1 FROM users WHERE email = ?) as email_exists
 	`
 	var usernameExists, emailExists bool
-    err := tx.QueryRow(query, username, email).Scan(&usernameExists, &emailExists)
-    if err != nil {
-        // エラーメッセージをより具体的に
-        return http.StatusInternalServerError, fmt.Errorf("failed to check credentials: %w", err)
-    }
+	err := tx.QueryRow(query, username, email).Scan(&usernameExists, &emailExists)
+	if err != nil {
+		// エラーメッセージをより具体的に
+		return http.StatusInternalServerError, fmt.Errorf("failed to check credentials: %w", err)
+	}
 	// 存在チェックの順序を明確に
-    switch {
-    case usernameExists:
-        return http.StatusConflict, fmt.Errorf("username %s is already taken", username)
-    case emailExists:
-        return http.StatusConflict, fmt.Errorf("email %s is already registered", email)
-    default:
-        return http.StatusOK, nil
-    }
+	switch {
+	case usernameExists:
+		return http.StatusConflict, fmt.Errorf("username %s is already taken", username)
+	case emailExists:
+		return http.StatusConflict, fmt.Errorf("email %s is already registered", email)
+	default:
+		return http.StatusOK, nil
+	}
 }
 
 func createUser(tx *sql.Tx, req *SignupRequest) error {

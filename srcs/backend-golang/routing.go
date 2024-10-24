@@ -6,6 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 )
+
 // db *sql.DB
 func routing(e *echo.Echo, db *sql.DB) {
 	g := e.Group("/api")

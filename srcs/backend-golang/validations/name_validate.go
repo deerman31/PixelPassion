@@ -18,4 +18,3 @@ func validateName(fl validator.FieldLevel) bool {
 	matched, _ := regexp.MatchString("^[a-zA-Z\\s-]+$", name)
 	return matched
 }
-

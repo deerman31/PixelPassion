@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"backend-golang/email"
+	"backend-golang/tokens"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -59,8 +61,25 @@ func Signup(db *sql.DB) echo.HandlerFunc {
 		req.Password = string(hashedBytes)
 
 		// ユーザーの登録
-		if err := createUser(tx, req); err != nil {
+		userID, err := createUser(tx, req)
+		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create user"})
+		}
+
+		// 確認Tokenを生成
+		token, err := email.GenerateVerificationToken()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate verification token"})
+		}
+
+		// tokenをデータベースに保存
+		if err := tokens.CreateVerificationToken(tx,userID,token); err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to save verification token"})
+		}
+
+		// 確認メールを送信
+		if err := email.SendVerificationEmail(req.Email, token); err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to send verification email"})
 		}
 
 		// トランザクションをコミット
@@ -68,7 +87,7 @@ func Signup(db *sql.DB) echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Could not commit transaction"})
 		}
 
-		return c.JSON(http.StatusCreated, map[string]string{"message": "User created successfully"})
+		return c.JSON(http.StatusCreated, map[string]string{"message": "User created successfully. Please check your email to verify your account.",})
 	}
 }
 
@@ -96,8 +115,21 @@ func checkDuplicateUserCredentials(tx *sql.Tx, username, email string) (int, err
 	}
 }
 
-func createUser(tx *sql.Tx, req *SignupRequest) error {
-	_, err := tx.Exec("INSERT INTO users (username, email, lastname, firstname, password, is_gps, gender, sexual_orientation, eria) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+func createUser(tx *sql.Tx, req *SignupRequest) (int, error) {
+	/*
+	SQLのINSERT文でreqの情報をusersテーブルに挿入している.
+	挿入が成功すると、resultオブジェクトが返される.
+	LastInsertId()メソッドは新しく作成されたUserIDを返す.
+	*/
+	result, err := tx.Exec("INSERT INTO users (username, email, lastname, firstname, password, is_gps, gender, sexual_orientation, eria) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		req.Username, req.Email, req.Lastname, req.Firstname, req.Password, req.IsGpsEnabled, req.Gender, req.SexualOrientation, req.Eria)
-	return err
+	if err != nil {
+		return 0, err
+	}
+	userID, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return int(userID), err
 }

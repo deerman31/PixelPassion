@@ -29,3 +29,15 @@ CREATE INDEX idx_email ON users(email);
 -- 必要に応じて初期データを挿入
 -- INSERT INTO users (username, email, lastname, firstname, password) VALUES
 -- ('admin', 'admin@example.com', 'Admin', 'User', 'hashed_password_here');
+
+CREATE TABLE IF NOT EXISTS verification_tokens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    expires_at TIMESTAMP NOT NULL,
+    used BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE INDEX idx_token ON verification_tokens(token);

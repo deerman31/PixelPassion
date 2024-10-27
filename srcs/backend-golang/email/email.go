@@ -8,24 +8,7 @@ import (
 	"os"
 )
 
-type EmailConfig struct {
-	Host     string
-	Port     string
-	Username string
-	Password string
-	From     string
-}
-
-func GetEmailConfig() EmailConfig {
-	return EmailConfig{
-		Host:     os.Getenv("SMTP_HOST"),
-		Port:     os.Getenv("SMTP_PORT"),
-		Username: os.Getenv("SMTP_USERNAME"),
-		Password: os.Getenv("SMTP_PASSWORD"),
-		From:     os.Getenv("SMTP_FROM"),
-	}
-}
-
+/*
 func SendVerificationEmail(email, token string) error {
 	config := GetEmailConfig()
 
@@ -52,6 +35,52 @@ func SendVerificationEmail(email, token string) error {
 	addr := fmt.Sprintf("%s:%s", config.Host, config.Port)
 	auth := smtp.PlainAuth("", config.Username, config.Password, config.Host)
 	return smtp.SendMail(addr, auth, config.From, []string{email}, []byte(msg))
+}
+*/
+func SendVerificationEmail(email, token string) error {
+	// SMTPサーバーの設定
+	smtpHost := "mailpit"
+	smtpPort := 1025
+
+	verificationLink := fmt.Sprintf("http://localhost:%s/api/verify?token=%s",
+		os.Getenv("BACKEND_GOLANG_PORT"), token)
+
+	// 送信元と送信先の設定
+    from := "ykkusano3142@gmail.com"
+    //to := []string{"bini_shell2155ru@outlook.com"}
+    to := []string{email}
+
+	subject := "メールアドレスの確認"
+	body := fmt.Sprintf(`
+こんにちは、
+
+以下のリンクをクリックしてメールアドレスを確認してください：
+%s
+
+このリンクは24時間有効です。
+
+よろしくお願いいたします。
+`, verificationLink)
+
+	msg := fmt.Sprintf(
+        "To: %s\r\n"+
+		"From: %s\r\n"+
+        "Subject: %s\r\n"+
+		"Content-Type: text/plain; charset=\"UTF-8\"\r\n"+
+        "\r\n"+
+		"%s\r\n", email, from, subject, body)
+
+	// メール送信
+	err := smtp.SendMail(fmt.Sprintf("%s:%d", smtpHost, smtpPort), nil, from, to, []byte(msg))
+	if err != nil {
+		fmt.Println("-----------------------------")
+		fmt.Printf("Error sending email: %s", err.Error())
+		fmt.Println("-----------------------------")
+		return err
+	}
+	
+	fmt.Println("Email sent successfully")
+	return nil
 }
 
 func GenerateVerificationToken() (string, error) {

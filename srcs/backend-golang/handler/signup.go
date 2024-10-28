@@ -67,13 +67,13 @@ func Signup(db *sql.DB) echo.HandlerFunc {
 		}
 
 		// 確認Tokenを生成
-		token, err := email.GenerateVerificationToken()
+		token, err := email.GenerateVerificationToken(userID)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate verification token"})
 		}
 
 		// tokenをデータベースに保存
-		if err := tokens.CreateVerificationToken(tx,userID,token); err != nil {
+		if err := tokens.CreateVerificationToken(tx, userID, token); err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to save verification token"})
 		}
 
@@ -87,7 +87,7 @@ func Signup(db *sql.DB) echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Could not commit transaction"})
 		}
 
-		return c.JSON(http.StatusCreated, map[string]string{"message": "User created successfully. Please check your email to verify your account.",})
+		return c.JSON(http.StatusCreated, map[string]string{"message": "User created successfully. Please check your email to verify your account."})
 	}
 }
 
@@ -117,9 +117,9 @@ func checkDuplicateUserCredentials(tx *sql.Tx, username, email string) (int, err
 
 func createUser(tx *sql.Tx, req *SignupRequest) (int, error) {
 	/*
-	SQLのINSERT文でreqの情報をusersテーブルに挿入している.
-	挿入が成功すると、resultオブジェクトが返される.
-	LastInsertId()メソッドは新しく作成されたUserIDを返す.
+		SQLのINSERT文でreqの情報をusersテーブルに挿入している.
+		挿入が成功すると、resultオブジェクトが返される.
+		LastInsertId()メソッドは新しく作成されたUserIDを返す.
 	*/
 	result, err := tx.Exec("INSERT INTO users (username, email, lastname, firstname, password, is_gps, gender, sexual_orientation, eria) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		req.Username, req.Email, req.Lastname, req.Firstname, req.Password, req.IsGpsEnabled, req.Gender, req.SexualOrientation, req.Eria)

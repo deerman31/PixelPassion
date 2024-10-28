@@ -10,5 +10,6 @@ func CreateVerificationToken(tx *sql.Tx, userID int, token string) error {
 		INSERT INTO verification_tokens (user_id, token, expires_at)
 		VALUES (?, ?, ?)`,
 		userID, token, time.Now().Add(24*time.Hour))
+
 	return err
 }

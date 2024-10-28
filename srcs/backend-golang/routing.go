@@ -14,4 +14,5 @@ func routing(e *echo.Echo, db *sql.DB) {
 	g.POST("/signup", handler.Signup(db))
 	g.POST("/login", handler.Login)
 	g.POST("/logout", handler.Logout)
+	g.GET("/verify-email", handler.VerifyEmail(db))
 }

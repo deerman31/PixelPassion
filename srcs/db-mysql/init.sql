@@ -25,14 +25,3 @@ CREATE TABLE IF NOT EXISTS users (
 -- インデックスの作成
 CREATE INDEX idx_username ON users(username);
 CREATE INDEX idx_email ON users(email);
-
-
-CREATE TABLE IF NOT EXISTS verification_tokens (
-    user_id INT NOT NULL,
-    token VARCHAR(255) NOT NULL UNIQUE,
-    expires_at TIMESTAMP NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
-CREATE INDEX idx_token ON verification_tokens(token);
-CREATE INDEX idx_expires ON verification_tokens(expires_at);

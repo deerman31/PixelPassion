@@ -2,7 +2,6 @@ package handler
 
 import (
 	"backend-golang/email"
-	"backend-golang/tokens"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -70,11 +69,6 @@ func Signup(db *sql.DB) echo.HandlerFunc {
 		token, err := email.GenerateVerificationToken(userID)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate verification token"})
-		}
-
-		// tokenをデータベースに保存
-		if err := tokens.CreateVerificationToken(tx, userID, token); err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to save verification token"})
 		}
 
 		// 確認メールを送信

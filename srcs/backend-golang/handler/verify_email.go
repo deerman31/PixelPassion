@@ -35,7 +35,7 @@ func parseToken(token string) (string, []byte, error) {
 	}
 
 	decoded_str := string(decoded)
-	if strings.Count(decoded_str,".") != 3 {
+	if strings.Count(decoded_str, ".") != 3 {
 		return "", nil, fmt.Errorf("Invalid token: incorrect format - expected 4 parts")
 	}
 

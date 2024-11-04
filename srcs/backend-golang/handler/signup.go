@@ -26,7 +26,7 @@ type SignupRequest struct {
 	Eria string `json:"eria" validate:"required,eria"`
 }
 
-func Signup(db *sql.DB) echo.HandlerFunc {
+func SignupHandler(db *sql.DB) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		req := new(SignupRequest)
 		if err := c.Bind(req); err != nil {

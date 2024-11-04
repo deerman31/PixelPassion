@@ -6,7 +6,6 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// password          string `json:"password" validate:"required,min=8,password"`
 func validatePassword(fl validator.FieldLevel) bool {
 	password := fl.Field().String()
 

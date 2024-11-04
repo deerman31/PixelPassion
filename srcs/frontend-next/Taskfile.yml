@@ -1,0 +1,113 @@
+version: "3"
+
+vars:
+  NODE_ENV: development
+  NEXT_DIR: ./my-app # Next.jsプロジェクトのディレクトリ
+
+tasks:
+  install:
+    desc: Install dependencies
+    dir: "{{.NEXT_DIR}}"
+    cmds:
+      - npm install
+
+  dev:
+    desc: Start development server
+    dir: "{{.NEXT_DIR}}"
+    cmds:
+      - npm run dev -p 3000
+
+  build:
+    desc: Build for production
+    dir: "{{.NEXT_DIR}}"
+    cmds:
+      - npm run build -p 3000
+
+  start:
+    desc: Start production server
+    dir: "{{.NEXT_DIR}}"
+    cmds:
+      - npm run start -p 3000
+
+  lint:
+    desc: Run ESLint
+    dir: "{{.NEXT_DIR}}"
+    cmds:
+      - npm run lint
+
+  lint:fix:
+    desc: Fix ESLint errors
+    dir: "{{.NEXT_DIR}}"
+    cmds:
+      - npm run lint -- --fix
+
+  format:
+    desc: Format code with Prettier
+    dir: "{{.NEXT_DIR}}"
+    cmds:
+      - npm run format
+
+  test:
+    desc: Run tests
+    dir: "{{.NEXT_DIR}}"
+    cmds:
+      - npm run test
+
+  test:watch:
+    desc: Run tests in watch mode
+    dir: "{{.NEXT_DIR}}"
+    cmds:
+      - npm run test:watch
+
+  clean:
+    desc: Clean build artifacts
+    dir: "{{.NEXT_DIR}}"
+    cmds:
+      - rm -rf .next
+      - rm -rf out
+      - rm -rf node_modules/.cache
+
+  docker:build:
+    desc: Build Docker image
+    dir: "{{.NEXT_DIR}}"
+    cmds:
+      - docker build -t {{.PROJECT_NAME}}:latest .
+
+  docker:run:
+    desc: Run Docker container
+    cmds:
+      - docker run -p 3000:3000 {{.PROJECT_NAME}}:latest
+
+  deploy:
+    desc: Deploy to production
+    dir: "{{.NEXT_DIR}}"
+    cmds:
+      - task: build
+      - echo "Add your deployment commands here"
+
+  analyze:
+    desc: Analyze bundle size
+    dir: "{{.NEXT_DIR}}"
+    cmds:
+      - ANALYZE=true npm run build
+
+  type-check:
+    desc: Run TypeScript type checking
+    dir: "{{.NEXT_DIR}}"
+    cmds:
+      - tsc --noEmit
+
+  setup:
+    desc: Initial project setup
+    dir: "{{.NEXT_DIR}}"
+    cmds:
+      - task: install
+      - cp .env.example .env.local
+      - echo "Project setup complete"
+
+  install:all:
+    desc: Install dependencies for all packages
+    cmds:
+      - task: install
+      # 他のパッケージのインストールコマンドをここに追加できます
+      - echo "All packages installed"

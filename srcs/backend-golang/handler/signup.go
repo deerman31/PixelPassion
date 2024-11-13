@@ -30,6 +30,7 @@ func SignupHandler(db *sql.DB) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		req := new(SignupRequest)
 		if err := c.Bind(req); err != nil {
+			fmt.Println(err.Error())
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
 		}
 

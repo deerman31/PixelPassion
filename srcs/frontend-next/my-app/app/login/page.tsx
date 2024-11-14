@@ -1,5 +1,8 @@
 // app/login/page.tsx
 import { Header } from '../components/Header'
+import * as Form from '@radix-ui/react-form'
+import { FormTextField } from '../components/FormTextField'
+//import * as AlertDialog from '@radix-ui/react-alert-dialog'
 
 export default function Page() {
   return (
@@ -12,6 +15,12 @@ export default function Page() {
             Welcome back
           </h1>
           
+          <Form.Root onSubmit={handleSubmit} className="space-y-4">
+            {/* Username */}
+            <FormTextField name='username' label='Username' value={formData.username} onChange={handleTextChange} placeholder='Enter your username' />
+
+          </Form.Root>
+
           <form className="space-y-4">
             {/* Username */}
             <div>

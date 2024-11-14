@@ -16,6 +16,7 @@ func NewCustomValidator() *CustomValidator {
 
 	v.RegisterValidation("username", validateUsername)
 	v.RegisterValidation("password", validatePassword)
+	v.RegisterValidation("repassword", validatePassword)
 	v.RegisterValidation("name", validateName)
 	v.RegisterValidation("eria", validateEria)
 	return &CustomValidator{validator: v}

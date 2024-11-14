@@ -12,11 +12,12 @@ import (
 )
 
 type SignupRequest struct {
-	Username  string `json:"username" validate:"required,username"`
-	Email     string `json:"email" validate:"required,email"`
-	Lastname  string `json:"lastname" validate:"required,name"`
-	Firstname string `json:"firstname" validate:"required,name"`
-	Password  string `json:"password" validate:"required,password"`
+	Username   string `json:"username" validate:"required,username"`
+	Email      string `json:"email" validate:"required,email"`
+	Lastname   string `json:"lastname" validate:"required,name"`
+	Firstname  string `json:"firstname" validate:"required,name"`
+	Password   string `json:"password" validate:"required,password"`
+	RePassword string `json:"repassword" validate:"required,password"`
 
 	IsGpsEnabled bool `json:"isGpsEnabled" validate:"required"`
 
@@ -30,8 +31,12 @@ func SignupHandler(db *sql.DB) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		req := new(SignupRequest)
 		if err := c.Bind(req); err != nil {
-			fmt.Println(err.Error())
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
+		}
+
+		// passwordとrepasswordが同じかをCheckする
+		if req.Password != req.RePassword {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Password and confirm password do not match"})
 		}
 
 		// validationをここで行う
@@ -99,6 +104,7 @@ func checkDuplicateUserCredentials(tx *sql.Tx, username, email string) (int, err
 		// エラーメッセージをより具体的に
 		return http.StatusInternalServerError, fmt.Errorf("failed to check credentials: %w", err)
 	}
+
 	// 存在チェックの順序を明確に
 	switch {
 	case usernameExists:

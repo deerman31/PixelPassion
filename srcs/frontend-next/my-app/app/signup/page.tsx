@@ -6,6 +6,90 @@ import * as Form from '@radix-ui/react-form'
 import * as AlertDialog from '@radix-ui/react-alert-dialog'
 import * as RadioGroup from '@radix-ui/react-radio-group'
 
+import * as Select from '@radix-ui/react-select';
+import { ChevronDown } from 'lucide-react';
+
+const PREFECTURES = [
+  { value: 'Hokkaido', label: '北海道' },
+  { value: 'Aomori', label: '青森県' },
+  { value: 'Iwate', label: '岩手県' },
+  { value: 'Miyagi', label: '宮城県' },
+  { value: 'Akita', label: '秋田県' },
+  { value: 'Yamagata', label: '山形県' },
+  { value: 'Fukushima', label: '福島県' },
+  { value: 'Ibaraki', label: '茨城県' },
+  { value: 'Tochigi', label: '栃木県' },
+  { value: 'Gunma', label: '群馬県' },
+  { value: 'Saitama', label: '埼玉県' },
+  { value: 'Chiba', label: '千葉県' },
+  { value: 'Tokyo', label: '東京都' },
+  { value: 'Kanagawa', label: '神奈川県' },
+  { value: 'Niigata', label: '新潟県' },
+  { value: 'Toyama', label: '富山県' },
+  { value: 'Ishikawa', label: '石川県' },
+  { value: 'Fukui', label: '福井県' },
+  { value: 'Yamanashi', label: '山梨県' },
+  { value: 'Nagano', label: '長野県' },
+  { value: 'Gifu', label: '岐阜県' },
+  { value: 'Shizuoka', label: '静岡県' },
+  { value: 'Aichi', label: '愛知県' },
+  { value: 'Mie', label: '三重県' },
+  { value: 'Shiga', label: '滋賀県' },
+  { value: 'Kyoto', label: '京都府' },
+  { value: 'Osaka', label: '大阪府' },
+  { value: 'Hyogo', label: '兵庫県' },
+  { value: 'Nara', label: '奈良県' },
+  { value: 'Wakayama', label: '和歌山県' },
+  { value: 'Tottori', label: '鳥取県' },
+  { value: 'Shimane', label: '島根県' },
+  { value: 'Okayama', label: '岡山県' },
+  { value: 'Hiroshima', label: '広島県' },
+  { value: 'Yamaguchi', label: '山口県' },
+  { value: 'Tokushima', label: '徳島県' },
+  { value: 'Kagawa', label: '香川県' },
+  { value: 'Ehime', label: '愛媛県' },
+  { value: 'Kochi', label: '高知県' },
+  { value: 'Fukuoka', label: '福岡県' },
+  { value: 'Saga', label: '佐賀県' },
+  { value: 'Nagasaki', label: '長崎県' },
+  { value: 'Kumamoto', label: '熊本県' },
+  { value: 'Oita', label: '大分県' },
+  { value: 'Miyazaki', label: '宮崎県' },
+  { value: 'Kagoshima', label: '鹿児島県' },
+  { value: 'Okinawa', label: '沖縄県' },
+];
+
+// components/UsernameField.tsx
+
+interface UsernameFieldProps {
+  username: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+}
+
+function UsernameField({ username, onChange }: UsernameFieldProps) {
+  return (
+    <Form.Field name="username" className="grid mb-4">
+      <Form.Label className="text-sm font-medium text-gray-700 mb-1">
+        Username
+      </Form.Label>
+      <Form.Control asChild>
+        <input
+          type="text"
+          required
+          value={username}
+          onChange={onChange}
+          name="username"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-black"
+        />
+      </Form.Control>
+      <Form.Message match="valueMissing" className="text-sm text-red-500">
+        Please enter your username
+      </Form.Message>
+    </Form.Field>
+  );
+}
+
+// formで収集するデータの型を定義している。これはなんとなくわかった
 interface FormData {
   username: string;
   firstname: string;
@@ -20,6 +104,8 @@ interface FormData {
 }
 
 export default function Page() {
+  /* 状態管理 */
+  /* Formの状態を管理する */
   const [formData, setFormData] = useState<FormData>({
     username: '',
     firstname: '',
@@ -33,9 +119,13 @@ export default function Page() {
     eria: ""
   })
 
+  /* errorメッセージの状態を管理する */
   const [error, setError] = useState<string>('')
+  /* Errorダイアログの表示状態を管理 (ダイアログとはエラーメッセージを表示する部分？)) */
   const [showError, setShowError] = useState<boolean>(false)
 
+  /* イベントハンドラー */
+  /* handleChange() text入力とcheckboxの変更を処理 */
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, type, value, checked } = e.target
     setFormData(prev => ({
@@ -45,6 +135,7 @@ export default function Page() {
     }))
   }
 
+  /* handleRadioChange() ラヂオボタンの変更を処理 */
   const handleRadioChange = (name: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -52,27 +143,36 @@ export default function Page() {
     }))
   }
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setError('')
+  // イベントハンドラーを別関数として定義
+  // const handlePrefectureChange = (event: ChangeEvent<HTMLSelectElement>) => {
+  //   // イベントオブジェクト全体をログ出力
+  //   console.log('Event object:', event);
+  //   console.log('Target element:', event.target);
+  //   console.log('Selected value:', event.target.value);
 
-    // Basic validation
-    if (formData.password !== formData.repassword) {
-      setError('Passwords do not match')
-      setShowError(true)
-      return
-    }
+  //   // 値を直接取得して設定
+  //   const selectedValue = event.target.value;
 
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long')
-      setShowError(true)
-      return
-    }
+  //   setFormData(prevState => {
+  //     const newState = {
+  //       ...prevState,
+  //       eria: selectedValue
+  //     };
+  //     console.log('New form data:', newState);
+  //     return newState;
+  //   });
+  // };
+
+
+  /* Form送信 */
+  /*handleSubmit() formの送信処理を担当 */
+  /* FormEvent<HTMLFormElement>は Typescript の Form 送信イベントの型である。 */
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault() /* フォームのデフォルトの送信動作（ページのリロード）を防止 */
+    setError('') /* Error状態をリセット */
 
     try {
-      //const response = await fetch('http://localhost:3000/api/signup', {
-      //const response = await fetch('/api/signup', {
-      const response = await fetch('http://localhost:3000/api/signup', {
+      const response = await fetch('/api/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,6 +183,7 @@ export default function Page() {
           lastname: formData.lastname,
           email: formData.email,
           password: formData.password,
+          repassword: formData.repassword,
           isGpsEnabled: Boolean(formData.isGpsEnabled),
           gender: formData.gender,
           sexual_orientation: formData.sexual_orientation,
@@ -91,19 +192,8 @@ export default function Page() {
       })
 
       if (!response.ok) {
-        //const data = await response.json()
-        const text = await response.text()
-        console.error('Response text:', text) // デバッグ用にログ出力
-        let errorMessage = 'Signup failed'
-        try {
-          const data = JSON.parse(text)
-          errorMessage = data.error || data.message || errorMessage
-        } catch (parseError) {
-          console.error('JSON parse error:', parseError)
-          errorMessage = text || errorMessage
-        }
-
-        throw new Error(errorMessage)
+        const data = await response.json();
+        throw new Error(data.message || "Signup failed");
       }
 
       // Redirect to login page or show success message
@@ -130,24 +220,7 @@ export default function Page() {
 
           <Form.Root onSubmit={handleSubmit} className="space-y-4">
             {/* Username */}
-            <Form.Field name="username" className="grid mb-4">
-              <Form.Label className="text-sm font-medium text-gray-700 mb-1">
-                Username
-              </Form.Label>
-              <Form.Control asChild>
-                <input
-                  type="text"
-                  required
-                  value={formData.username}
-                  onChange={handleChange}
-                  name="username"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-black"
-                />
-              </Form.Control>
-              <Form.Message match="valueMissing" className="text-sm text-red-500">
-                Please enter your username
-              </Form.Message>
-            </Form.Field>
+            <UsernameField username={formData.username} onChange={handleChange} />
 
             {/* First Name */}
             <Form.Field name="firstname" className="grid mb-4">
@@ -335,73 +408,83 @@ export default function Page() {
               </RadioGroup.Root>
             </Form.Field>
 
-            {/* Prefecture */}
-            <Form.Field name="eria" className="grid mb-4">
-              <Form.Label className="text-sm font-medium text-gray-700 mb-1">
-                Prefecture
-              </Form.Label>
+            <Form.Field className="grid mb-4" name="prefecture">
+              <div className="flex items-baseline justify-between">
+                <Form.Label className="text-sm font-medium text-gray-700 mb-1">
+                  Prefecture
+                </Form.Label>
+                <Form.Message
+                  className="text-sm text-red-500"
+                  match="valueMissing"
+                >
+                  Please select your prefecture
+                </Form.Message>
+              </div>
+
               <Form.Control asChild>
-                <select
+                <Select.Root
                   required
                   value={formData.eria}
-                  onChange={(e) => handleRadioChange('eria', e.target.value)}
+                  onValueChange={(value) => {
+                    setFormData({
+                      ...formData,
+                      eria: value
+                    });
+                  }}
                   name="eria"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-black"
                 >
-                  <option value="">Select Prefecture</option>
-                  <option value="Hokkaido">北海道</option>
-                  <option value="Aomori">青森県</option>
-                  <option value="Iwate">岩手県</option>
-                  <option value="Miyagi">宮城県</option>
-                  <option value="Akita">秋田県</option>
-                  <option value="Yamagata">山形県</option>
-                  <option value="Fukushima">福島県</option>
-                  <option value="Ibaraki">茨城県</option>
-                  <option value="Tochigi">栃木県</option>
-                  <option value="Gunma">群馬県</option>
-                  <option value="Saitama">埼玉県</option>
-                  <option value="Chiba">千葉県</option>
-                  <option value="Tokyo">東京都</option>
-                  <option value="Kanagawa">神奈川県</option>
-                  <option value="Niigata">新潟県</option>
-                  <option value="Toyama">富山県</option>
-                  <option value="Ishikawa">石川県</option>
-                  <option value="Fukui">福井県</option>
-                  <option value="Yamanashi">山梨県</option>
-                  <option value="Nagano">長野県</option>
-                  <option value="Gifu">岐阜県</option>
-                  <option value="Shizuoka">静岡県</option>
-                  <option value="Aichi">愛知県</option>
-                  <option value="Mie">三重県</option>
-                  <option value="Shiga">滋賀県</option>
-                  <option value="Kyoto">京都府</option>
-                  <option value="Osaka">大阪府</option>
-                  <option value="Hyogo">兵庫県</option>
-                  <option value="Nara">奈良県</option>
-                  <option value="Wakayama">和歌山県</option>
-                  <option value="Tottori">鳥取県</option>
-                  <option value="Shimane">島根県</option>
-                  <option value="Okayama">岡山県</option>
-                  <option value="Hiroshima">広島県</option>
-                  <option value="Yamaguchi">山口県</option>
-                  <option value="Tokushima">徳島県</option>
-                  <option value="Kagawa">香川県</option>
-                  <option value="Ehime">愛媛県</option>
-                  <option value="Kochi">高知県</option>
-                  <option value="Fukuoka">福岡県</option>
-                  <option value="Saga">佐賀県</option>
-                  <option value="Nagasaki">長崎県</option>
-                  <option value="Kumamoto">熊本県</option>
-                  <option value="Oita">大分県</option>
-                  <option value="Miyazaki">宮崎県</option>
-                  <option value="Kagoshima">鹿児島県</option>
-                  <option value="Okinawa">沖縄県</option>
-                </select>
+                  <Select.Trigger
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-black inline-flex items-center justify-between"
+                    aria-label="Prefecture selection"
+                  >
+                    <Select.Value placeholder="Select Prefecture" />
+                    <Select.Icon>
+                      <ChevronDown className="h-4 w-4" />
+                    </Select.Icon>
+                  </Select.Trigger>
+
+                  <Select.Portal>
+                    <Select.Content
+                      className="bg-white rounded-md shadow-lg border border-gray-200 overflow-hidden"
+                      position="popper"
+                      sideOffset={5}
+                    >
+                      <Select.ScrollUpButton className="flex items-center justify-center h-6 bg-white text-gray-700 cursor-default">
+                        <ChevronDown className="h-4 w-4 rotate-180" />
+                      </Select.ScrollUpButton>
+
+                      <Select.Viewport className="p-1 max-h-64 overflow-y-auto">
+                        <Select.Group>
+                          <Select.Label className="px-6 py-2 text-xs text-gray-500 bg-white">
+                            都道府県を選択してください
+                          </Select.Label>
+                          {PREFECTURES.map((pref) => (
+                            <Select.Item
+                              key={pref.value}
+                              value={pref.value}
+                              className="relative flex items-center px-6 py-2 text-sm rounded-sm hover:bg-emerald-50 focus:bg-emerald-50 radix-disabled:opacity-50 focus:outline-none select-none text-black"
+                            >
+                              <Select.ItemText className="text-black">{pref.label}</Select.ItemText>
+                            </Select.Item>
+                          ))}
+                        </Select.Group>
+                      </Select.Viewport>
+
+                      <Select.ScrollDownButton className="flex items-center justify-center h-6 bg-white text-gray-700 cursor-default">
+                        <ChevronDown className="h-4 w-4" />
+                      </Select.ScrollDownButton>
+                    </Select.Content>
+                  </Select.Portal>
+                </Select.Root>
               </Form.Control>
-              <Form.Message match="valueMissing" className="text-sm text-red-500">
-                Please select your prefecture
-              </Form.Message>
+
+              {(!formData.eria) && (
+                <p className="text-sm text-red-500 mt-1">
+                  Please select your prefecture
+                </p>
+              )}
             </Form.Field>
+
 
             {/* Submit Button */}
             <Form.Submit asChild>
@@ -432,7 +515,7 @@ export default function Page() {
                 onClick={() => setShowError(false)}
                 className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
               >
-                Okay
+                Ok
               </button>
             </AlertDialog.Action>
           </AlertDialog.Content>

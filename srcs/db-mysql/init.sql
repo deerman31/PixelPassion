@@ -25,3 +25,12 @@ CREATE TABLE IF NOT EXISTS users (
 -- インデックスの作成
 CREATE INDEX idx_username ON users(username);
 CREATE INDEX idx_email ON users(email);
+
+CREATE TABLE refresh_tokens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token_hash VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);

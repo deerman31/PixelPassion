@@ -9,7 +9,7 @@ export default function Home() {
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="pt-24 pb-16 px-4">
+        <section className="pt-24 pb-16 px-4 bg-black">
           <div className="container mx-auto max-w-6xl">
             <div className="text-center mb-16">
               <h1 className="text-5xl font-bold text-white mb-6">

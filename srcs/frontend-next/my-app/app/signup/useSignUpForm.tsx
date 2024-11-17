@@ -1,5 +1,5 @@
 import { useState, ChangeEvent, FormEvent } from 'react'
-import { SignUpFormData } from './signupTypes'
+import { SignupErrorResponse, SignUpFormData, } from './signupTypes'
 
 export const useSignUpForm = () => {
   // フォームの状態管理
@@ -30,8 +30,8 @@ export const useSignUpForm = () => {
   }
 
   // チェックボックスの変更ハンドラー
-  const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target
+  const handleCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = event.target
     setFormData(prev => ({
       ...prev,
       [name]: checked
@@ -57,26 +57,14 @@ export const useSignUpForm = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          username: formData.username,
-          firstname: formData.firstname,
-          lastname: formData.lastname,
-          email: formData.email,
-          password: formData.password,
-          repassword: formData.repassword,
-          isGpsEnabled: Boolean(formData.isGpsEnabled),
-          gender: formData.gender,
-          sexual_orientation: formData.sexual_orientation,
-          eria: formData.eria
-        })
+        body: JSON.stringify(formData)
       })
-
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.message || "Signup failed")
+        const errorData: SignupErrorResponse = await response.json()
+        throw new Error(errorData.error || "Signup failed")
+      } else {
+        window.location.href = '/login'
       }
-
-      window.location.href = '/login'
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message)

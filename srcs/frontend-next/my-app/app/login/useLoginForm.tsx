@@ -1,5 +1,7 @@
 import { useState, ChangeEvent, FormEvent } from "react"
-import { LoginFormData } from "./loginTypes"
+import { LoginErrorResponse, LoginFormData, LoginSuccessResponse } from "./loginTypes"
+import { setSessionAccessToken, setSessionRefreshToken } from "../utils/veridy_token"
+
 
 export const useLoginForm = () => {
     const [formData, setFormData] = useState<LoginFormData>({
@@ -30,18 +32,18 @@ export const useLoginForm = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    username: formData.username,
-                    password: formData.password
-                })
+                body: JSON.stringify(formData)
             })
-
+            const data: LoginSuccessResponse | LoginErrorResponse = await response.json();
             if (!response.ok) {
-                const data = await response.json()
-                throw new Error(data.message || "Login failed")
+                const errorData = data as LoginErrorResponse;
+                throw new Error(errorData.error || "Login failed");
             }
-
-            window.location.href = '/forgot-password'
+            const successData = data as LoginSuccessResponse;
+            setSessionAccessToken(successData.access_token)
+            setSessionRefreshToken(successData.refresh_token)
+            window.location.href = '/dashboard'
+            //router.push('/dashboard');
         } catch (err) {
             if (err instanceof Error) {
                 setError(err.message)

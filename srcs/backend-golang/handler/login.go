@@ -1,12 +1,29 @@
 package handler
 
 import (
+	jwttokens "backend-golang/handler/jwt_tokens"
 	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+)
+
+const (
+	// ユーザーのオンラインステータスを更新するクエリ
+	updateUserOnlineStatusQuery = `
+        UPDATE users 
+        SET is_online = TRUE 
+        WHERE id = ?
+    `
+	// ユーザー名からユーザー情報を取得するクエリ
+	selectUserByUsernameQuery = `
+        SELECT id, username, password, is_registered
+        FROM users 
+        WHERE username = ?
+        LIMIT 1
+    `
 )
 
 type LoginRequest struct {
@@ -22,7 +39,7 @@ type TokenResponse struct {
 
 // User はデータベースのユーザー情報を表す構造体
 type User struct {
-	ID             int64
+	ID             int
 	Username       string
 	HashedPassword string
 	isRegistered   bool
@@ -33,20 +50,12 @@ var ErrUserNotFound = errors.New("user not found")
 
 func searchUserDB(tx *sql.Tx, username string) (*User, int, error) {
 	user := &User{}
-	// SQLインジェクション対策のためプリペアドステートメントを使用
-	query := `
-SELECT id, username, password, is_registered,
-FROM users 
-WHERE username = $1
-LIMIT 1
-`
-	row := tx.QueryRow(query, username)
-	err := row.Scan(
+	if err := tx.QueryRow(selectUserByUsernameQuery, username).Scan(
 		&user.ID,
 		&user.Username,
 		&user.HashedPassword,
-	)
-	if err != nil {
+		&user.isRegistered,
+	); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, http.StatusUnauthorized, ErrUserNotFound
 		}
@@ -79,48 +88,45 @@ func LoginHandler(db *sql.DB) echo.HandlerFunc {
 		if err != nil {
 			return c.JSON(status, map[string]string{"error": err.Error()})
 		}
+
 		// userがメールで認証済みかどうか確認
 		if !user.isRegistered {
 			return c.JSON(http.StatusForbidden, map[string]string{"error": "Email not verified"})
 		}
+
 		if !comparePassword(user.HashedPassword, req.Password) {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid password"})
 		}
 		// ここまでが検証
 		// ここからaccess_tokenとrefresh_tokenを生成する
-		/*
-			accessToken, refreshToken, err := GenarateJWT()
-		*/
-		tokenPair, err := GenerateTokenPair(user, tx)
+		//tokenPair, err := GenerateTokenPair(user, tx)
+		tokenPair, err := jwttokens.GenerateTokenPair(user.ID, tx)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		}
-		query := `
-			UPDATE users 
-			SET is_online = TRUE 
-			WHERE id = ?
-		`
-		result, err := tx.Exec(query, user.ID)
+
+		result, err := tx.Exec(updateUserOnlineStatusQuery, user.ID)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		}
+
 		// 更新が成功したか確認
 		rows, err := result.RowsAffected()
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		}
+
 		// userが見つからなかった場合
 		if rows == 0 {
 			return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
 		}
+
 		// トランザクションのコミット
 		if err = tx.Commit(); err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Could not commit transaction"})
 		}
+
 		return c.JSON(http.StatusOK,
-			TokenResponse{
-				AccessToken:  tokenPair.AccessToken,
-				RefreshToken: tokenPair.RefreshToken,
-			})
+			TokenResponse{AccessToken: tokenPair.AccessToken, RefreshToken: tokenPair.RefreshToken})
 	}
 }

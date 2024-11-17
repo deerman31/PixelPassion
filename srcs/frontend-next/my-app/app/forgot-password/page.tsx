@@ -1,10 +1,10 @@
 // app/forgot-password/page.tsx
-import { Header } from '../components/Header'
+import { AuthHeader } from '../components/AuthHeader'
 
 export default function Page() {
   return (
     <div className="min-h-screen bg-black">
-      <Header />
+      <AuthHeader />
 
       <main className="pt-24 pb-16 px-4">
         <div className="max-w-md mx-auto bg-white rounded-lg shadow p-8">

@@ -11,6 +11,29 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const (
+	// 1つのクエリで両方をチェック
+	checkDuplicateCredentialsQuery = `
+        SELECT 
+            EXISTS(SELECT 1 FROM users WHERE username = ?) as username_exists,
+            EXISTS(SELECT 1 FROM users WHERE email = ?) as email_exists
+	`
+	// 新規ユーザーを登録するためのクエリ
+	insertNewUserQuery = `
+        INSERT INTO users (
+            username, 
+            email, 
+            lastname, 
+            firstname, 
+            password, 
+            is_gps, 
+            gender, 
+            sexual_orientation, 
+            eria
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `
+)
+
 type SignupRequest struct {
 	Username   string `json:"username" validate:"required,username"`
 	Email      string `json:"email" validate:"required,email"`
@@ -19,7 +42,9 @@ type SignupRequest struct {
 	Password   string `json:"password" validate:"required,password"`
 	RePassword string `json:"repassword" validate:"required,password"`
 
-	IsGpsEnabled bool `json:"isGpsEnabled" validate:"required"`
+	//IsGpsEnabled bool `json:"isGpsEnabled" validate:"required"`
+	// requiredをbool型煮付けるとfalseだとエラーだと判定してしまう。
+	IsGpsEnabled bool `json:"isGpsEnabled"`
 
 	Gender            string `json:"gender" validate:"required,oneof=male female"`
 	SexualOrientation string `json:"sexual_orientation" validate:"required,oneof=heterosexual homosexual bisexual"`
@@ -53,9 +78,9 @@ func SignupHandler(db *sql.DB) echo.HandlerFunc {
 		defer tx.Rollback() // エラーが発生した場合はロールバック
 
 		// usernameとemailの重複をcheck
-		n, err := checkDuplicateUserCredentials(tx, req.Username, req.Email)
+		status, err := checkDuplicateUserCredentials(tx, req.Username, req.Email)
 		if err != nil {
-			return c.JSON(n, map[string]string{"error": err.Error()})
+			return c.JSON(status, map[string]string{"error": err.Error()})
 		}
 
 		// このタイミングでパスワードをハッシュ化する
@@ -92,14 +117,8 @@ func SignupHandler(db *sql.DB) echo.HandlerFunc {
 }
 
 func checkDuplicateUserCredentials(tx *sql.Tx, username, email string) (int, error) {
-	// 1つのクエリで両方をチェック
-	const query = `
-        SELECT 
-            EXISTS(SELECT 1 FROM users WHERE username = ?) as username_exists,
-            EXISTS(SELECT 1 FROM users WHERE email = ?) as email_exists
-	`
 	var usernameExists, emailExists bool
-	err := tx.QueryRow(query, username, email).Scan(&usernameExists, &emailExists)
+	err := tx.QueryRow(checkDuplicateCredentialsQuery, username, email).Scan(&usernameExists, &emailExists)
 	if err != nil {
 		// エラーメッセージをより具体的に
 		return http.StatusInternalServerError, fmt.Errorf("failed to check credentials: %w", err)
@@ -122,8 +141,7 @@ func createUser(tx *sql.Tx, req *SignupRequest) (int, error) {
 		挿入が成功すると、resultオブジェクトが返される.
 		LastInsertId()メソッドは新しく作成されたUserIDを返す.
 	*/
-	result, err := tx.Exec("INSERT INTO users (username, email, lastname, firstname, password, is_gps, gender, sexual_orientation, eria) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-		req.Username, req.Email, req.Lastname, req.Firstname, req.Password, req.IsGpsEnabled, req.Gender, req.SexualOrientation, req.Eria)
+	result, err := tx.Exec(insertNewUserQuery, req.Username, req.Email, req.Lastname, req.Firstname, req.Password, req.IsGpsEnabled, req.Gender, req.SexualOrientation, req.Eria)
 	if err != nil {
 		return 0, err
 	}

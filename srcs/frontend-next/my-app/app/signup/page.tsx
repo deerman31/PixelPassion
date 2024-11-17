@@ -1,6 +1,6 @@
 'use client'
 
-import { Header } from '../components/Header'
+import { AuthHeader } from '../components/AuthHeader'
 import * as Form from '@radix-ui/react-form'
 import * as AlertDialog from '@radix-ui/react-alert-dialog'
 
@@ -28,7 +28,7 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-black">
-      <Header />
+      <AuthHeader />
 
       <main className="pt-24 pb-16 px-4">
         <div className="max-w-md mx-auto bg-white rounded-lg shadow p-8">
@@ -51,32 +51,12 @@ export default function Page() {
             <FormTextField name='repassword' label='Confirm Password' type='password' value={formData.repassword} onChange={handleTextChange} placeholder="Enter confirm your password" />
 
             {/* GPS Setting */}
-            <CheckboxField
-              name='isGpsEnabled'
-              label='Enable GPS Location'
-              checked={formData.isGpsEnabled}
-              onChange={handleCheckboxChange}
-            />
+            <CheckboxField name='isGpsEnabled' label='Enable GPS Location' checked={formData.isGpsEnabled} onChange={handleCheckboxChange} />
             {/* Gender */}
-            <RadioGroupField
-              name='gender'
-              label='Gender'
-              value={formData.gender}
-              options={GENDER_OPTIONS}
-              onChange={(value) => handleRadioChange('gender', value)}
-              orientation='horizontal'
-            />
+            <RadioGroupField name='gender' label='Gender' value={formData.gender} options={GENDER_OPTIONS} onChange={(value) => handleRadioChange('gender', value)} orientation='horizontal' />
 
             {/* Sexual Orientation */}
-            <RadioGroupField
-              name='sexual_orientation'
-              label='Sexual Orientation'
-              value={formData.sexual_orientation}
-              options={ORIENTATION_OPTIONS}
-              onChange={(value) => handleRadioChange('sexual_orientation', value)}
-              orientation='vertical'
-              capitalize
-            />
+            <RadioGroupField name='sexual_orientation' label='Sexual Orientation' value={formData.sexual_orientation} options={ORIENTATION_OPTIONS} onChange={(value) => handleRadioChange('sexual_orientation', value)} orientation='vertical' capitalize />
 
             <SelectField
               name="prefecture"

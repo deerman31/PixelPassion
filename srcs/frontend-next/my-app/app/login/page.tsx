@@ -1,7 +1,7 @@
 // app/login/page.tsx
 'use client'
 
-import { Header } from '../components/Header'
+import { AuthHeader } from '../components/AuthHeader'
 import * as Form from '@radix-ui/react-form'
 import { FormTextField } from '../components/FormTextField'
 import { useLoginForm } from './useLoginForm'
@@ -19,7 +19,7 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-black">
-      <Header />
+      <AuthHeader />
 
       <main className="pt-24 pb-16 px-4">
         <div className="max-w-md mx-auto bg-white rounded-lg shadow p-8">

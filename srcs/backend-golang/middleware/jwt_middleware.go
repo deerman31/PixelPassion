@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"backend-golang/handler"
+	jwttokens "backend-golang/handler/jwt_tokens"
 	"net/http"
 	"os"
 	"strings"
@@ -17,9 +17,8 @@ type JWTConfig struct {
 
 func JWTMiddleware() echo.MiddlewareFunc {
 	config := &JWTConfig{
-		SecretKey: os.Getenv("TOKEN_SECRET_KEY"),
+		SecretKey: os.Getenv("JWT_SECRET_KEY"),
 	}
-
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			// Authorizationヘッダーを取得
@@ -39,7 +38,7 @@ func JWTMiddleware() echo.MiddlewareFunc {
 			tokenString := parts[1]
 
 			// Tokenの検証
-			token, err := jwt.ParseWithClaims(tokenString, &handler.Claims{}, func(token *jwt.Token) (interface{}, error) {
+			token, err := jwt.ParseWithClaims(tokenString, &jwttokens.Claims{}, func(token *jwt.Token) (interface{}, error) {
 				// 署名方法の検証
 				if _, ok := token.Method.(*jwt.SigningMethodECDSA); !ok {
 					return nil, echo.NewHTTPError(http.StatusUnauthorized, "unexpected signing method")
@@ -52,14 +51,14 @@ func JWTMiddleware() echo.MiddlewareFunc {
 				})
 			}
 			// クレームの検証
-			claims, ok := token.Claims.(*handler.Claims)
+			claims, ok := token.Claims.(*jwttokens.Claims)
 			if !ok || !token.Valid {
 				return c.JSON(http.StatusUnauthorized, map[string]string{
 					"error": "Invalid token claims",
 				})
 			}
 			// AccessTokenであることを確認
-			if claims.TokenType != handler.AccessToken {
+			if claims.TokenType != jwttokens.AccessToken {
 				return c.JSON(http.StatusUnauthorized, map[string]string{
 					"error": "Invalid token type",
 				})

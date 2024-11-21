@@ -2,7 +2,7 @@ package jwttokens
 
 const (
 	// refreshTokenを削除するquery
-	deleteRefreshTokenQuery = `
+	DeleteRefreshTokenQuery = `
         DELETE FROM refresh_tokens 
         WHERE user_id = ?
     `

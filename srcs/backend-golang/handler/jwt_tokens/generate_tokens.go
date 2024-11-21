@@ -52,7 +52,7 @@ func GenerateRefreshToken(userID int, tx *sql.Tx, secretKey string) (string, err
 func GenerateTokenPair(userID int, tx *sql.Tx) (*TokenPair, error) {
 	secretKey := os.Getenv("JWT_SECRET_KEY")
 	// 古いrefreshTokenをDELETEする
-	if _, err := tx.Exec(deleteRefreshTokenQuery, userID); err != nil {
+	if _, err := tx.Exec(DeleteRefreshTokenQuery, userID); err != nil {
 		return nil, fmt.Errorf("failed to delete old refresh tokens: %w", err)
 	}
 

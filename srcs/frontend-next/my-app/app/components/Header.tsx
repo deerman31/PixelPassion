@@ -3,15 +3,15 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'  // routerをnext/navigationからインポート
 import { useState } from 'react'
+import { getSessionAccessToken, removeSessionAccessToken, removeSessionRefreshToken } from '../utils/veridy_token';
 
 // 成功時のResponse型(BackendのTokenResponse構造体と同じようにする)
 interface LogoutSuccessResponse {
-    access_token: string;
-    refresh_token: string;
+  message: string;
 }
 // Error時のresponseの型
 export interface LogoutErrorResponse {
-    error: string;
+  error: string;
 }
 
 export function Header() {
@@ -19,18 +19,24 @@ export function Header() {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   const handleLogout = async () => {
+    const accessToken = getSessionAccessToken();
     try {
       setIsLoggingOut(true)
-      const response = await fetch('/logout', {
+      const response = await fetch('/api/logout', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
         },
       })
-
+      const data: LogoutSuccessResponse | LogoutErrorResponse = await response.json();
       if (!response.ok) {
-        throw new Error('Logout failed')
+        const errorData = data as LogoutErrorResponse;
+        throw new Error(errorData.error || 'Logout failed')
       }
+      //const successData = data as LogoutSuccessResponse;
+      // logoutするためtokenを全て削除
+      removeSessionAccessToken()
+      removeSessionRefreshToken()
 
       // リダイレクト
       await router.push('/')

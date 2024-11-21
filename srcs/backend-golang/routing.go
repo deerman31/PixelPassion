@@ -14,7 +14,8 @@ func routing(e *echo.Echo, db *sql.DB) {
 	g.GET("", handler.HelloWorldHandler)
 	g.POST("/signup", handler.SignupHandler(db))
 	g.POST("/login", handler.LoginHandler(db))
-	g.POST("/logout", handler.Logout)
+	g.POST("/logout", handler.LogoutHandler(db))
+	//g.POST("/logout", handler.Logout)
 	g.GET("/verify-email", handler.VerifyEmailHandler(db))
 
 	// 保護されたルート(認証が必要)

@@ -1,11 +1,12 @@
 // app/page.tsx
-import { AuthHeader } from '../components/AuthHeader'
+
 import Link from 'next/link' // このインポートが抜けていた
+import { Header } from '../components/Header'
 
 export default function Home() {
     return (
         <div className="min-h-screen flex flex-col">
-            <AuthHeader />
+            <Header />
 
             <main className="flex-1">
                 {/* Hero Section */}

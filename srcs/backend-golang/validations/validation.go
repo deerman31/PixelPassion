@@ -54,6 +54,8 @@ func formatValidationError(err error) error {
 			errMsgs = append(errMsgs, fmt.Sprintf("%s must be one of: %s", err.Field(), err.Param()))
 		case "eria":
 			errMsgs = append(errMsgs, "Invalid prefecture")
+		case "birthdate":
+			errMsgs = append(errMsgs, "Invalid date")
 		}
 	}
 

@@ -39,7 +39,7 @@ export function Header() {
       removeSessionRefreshToken()
 
       // リダイレクト
-      await router.push('/')
+      router.push('/')
     } catch (error) {
       console.error('Logout error:', error)
       // エラー処理をここに追加できます（例：トースト通知など）
@@ -58,6 +58,31 @@ export function Header() {
 
         {/* Navigation Buttons */}
         <nav className="flex items-center space-x-4">
+          <Link
+            href="/setting"
+            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+          >
+            Profile
+          </Link>
+          <Link
+            href="/setting"
+            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+          >
+            Chat
+          </Link>
+          <Link
+            href="/setting"
+            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+          >
+            Chat
+          </Link>
+          <Link
+            href="/setting"
+            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+          >
+            Setting
+          </Link>
+
           <button
             onClick={handleLogout}
             disabled={isLoggingOut}

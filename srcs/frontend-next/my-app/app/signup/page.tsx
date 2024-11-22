@@ -10,6 +10,7 @@ import { RadioGroupField } from '../components/RadioField'
 import { GENDER_OPTIONS, ORIENTATION_OPTIONS, PREFECTURES } from './formOptions'
 import { SelectField } from '../components/SelectField'
 import { useSignUpForm } from './useSignUpForm'
+import FormBirthDateField from '../components/BirthdateField'
 
 
 
@@ -43,6 +44,10 @@ export default function Page() {
             <FormTextField name='firstname' label='Firstname' value={formData.firstname} onChange={handleTextChange} placeholder='Enter your firstname' />
             {/* Last Name */}
             <FormTextField name='lastname' label='Lastname' value={formData.lastname} onChange={handleTextChange} placeholder='Enter your lastname' />
+
+            {/* Birth Date */}
+            <FormBirthDateField name='birthdate' label='BirthDate' value={formData.birthdate} onChange={handleTextChange} />
+
             {/* Email */}
             <FormTextField name='email' label='Email' type='email' value={formData.email} onChange={handleTextChange} placeholder="Enter your email address" />
             {/* Password */}

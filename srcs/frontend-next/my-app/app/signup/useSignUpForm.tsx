@@ -7,6 +7,7 @@ export const useSignUpForm = () => {
     username: '',
     firstname: '',
     lastname: '',
+    birthdate: '2000-04-02',
     email: '',
     password: '',
     repassword: '',

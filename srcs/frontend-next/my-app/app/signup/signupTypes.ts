@@ -2,6 +2,7 @@ export interface SignUpFormData {
   username: string;
   firstname: string;
   lastname: string;
+  birthdate: string;
   email: string;
   password: string;
   repassword: string;
@@ -23,6 +24,7 @@ export const initialSignUpFormData: SignUpFormData = {
   username: '',
   firstname: '',
   lastname: '',
+  birthdate: '',
   email: '',
   password: '',
   repassword: '',

@@ -19,6 +19,7 @@ func NewCustomValidator() *CustomValidator {
 	v.RegisterValidation("repassword", validatePassword)
 	v.RegisterValidation("name", validateName)
 	v.RegisterValidation("eria", validateEria)
+	v.RegisterValidation("birthdate", validateBirthdate)
 	return &CustomValidator{validator: v}
 }
 

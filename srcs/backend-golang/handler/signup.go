@@ -23,14 +23,20 @@ const (
         INSERT INTO users (
             username, 
             email, 
+            password
+        ) VALUES (?, ?, ?)
+    `
+	insertNewUserInfoQuery = `
+        INSERT INTO user_info (
+            user_id, 
             lastname, 
             firstname, 
-            password, 
+			birthdate,
             is_gps, 
             gender, 
             sexual_orientation, 
             eria
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `
 )
 
@@ -50,6 +56,8 @@ type SignupRequest struct {
 	SexualOrientation string `json:"sexual_orientation" validate:"required,oneof=heterosexual homosexual bisexual"`
 
 	Eria string `json:"eria" validate:"required,eria"`
+
+	BirthDate string `json:"birthdate" validate:"required,birthdate"`
 }
 
 func SignupHandler(db *sql.DB) echo.HandlerFunc {
@@ -141,12 +149,15 @@ func createUser(tx *sql.Tx, req *SignupRequest) (int, error) {
 		挿入が成功すると、resultオブジェクトが返される.
 		LastInsertId()メソッドは新しく作成されたUserIDを返す.
 	*/
-	result, err := tx.Exec(insertNewUserQuery, req.Username, req.Email, req.Lastname, req.Firstname, req.Password, req.IsGpsEnabled, req.Gender, req.SexualOrientation, req.Eria)
+	result, err := tx.Exec(insertNewUserQuery, req.Username, req.Email, req.Password)
 	if err != nil {
 		return 0, err
 	}
 	userID, err := result.LastInsertId()
 	if err != nil {
+		return 0, err
+	}
+	if _, err := tx.Exec(insertNewUserInfoQuery, userID, req.Lastname, req.Firstname, req.BirthDate, req.IsGpsEnabled, req.Gender, req.SexualOrientation, req.Eria); err != nil {
 		return 0, err
 	}
 

@@ -1,4 +1,4 @@
-package handler
+package authentication
 
 import (
 	"crypto/hmac"
@@ -22,10 +22,6 @@ const (
 	expectedTokenParts = 2
 )
 
-const (
-	queryGetUserRegistration    = `SELECT is_registered FROM users WHERE id = ?`
-	queryUpdateUserRegistration = `UPDATE users SET is_registered = true WHERE id = ?`
-)
 
 func parseToken(token string) (string, []byte, error) {
 	// Base64decode

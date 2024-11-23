@@ -1,4 +1,4 @@
-package handler
+package authentication
 
 import (
 	jwttokens "backend-golang/handler/jwt_tokens"
@@ -8,15 +8,6 @@ import (
 	"os"
 
 	"github.com/labstack/echo/v4"
-)
-
-const (
-	// ユーザーのオンラインステータスを更新するクエリ
-	updateUserOfflineStatusQuery = `
-        UPDATE users 
-        SET is_online = FALSE 
-        WHERE id = ?
-    `
 )
 
 func LogoutHandler(db *sql.DB) echo.HandlerFunc {
@@ -69,6 +60,6 @@ func LogoutHandler(db *sql.DB) echo.HandlerFunc {
 		if err = tx.Commit(); err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Could not commit transaction"})
 		}
-		return c.JSON(http.StatusOK, map[string]string{"message": "User created successfully. Please check your email to verify your account."})
+		return c.JSON(http.StatusOK, map[string]string{"message": "User logout successfully."})
 	}
 }

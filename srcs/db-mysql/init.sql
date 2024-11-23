@@ -40,5 +40,6 @@ CREATE TABLE IF NOT EXISTS user_info (
         'Tokushima', 'Kagawa', 'Ehime', 'Kochi',
         'Fukuoka', 'Saga', 'Nagasaki', 'Kumamoto', 'Oita', 'Miyazaki', 'Kagoshima', 'Okinawa'
     ) NOT NULL DEFAULT 'Tokyo', /* 都道府県 */
+    self_intro VARCHAR(300) NOT NULL DEFAULT '', /* 自己紹介 */
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

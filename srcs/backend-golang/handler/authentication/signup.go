@@ -1,4 +1,4 @@
-package handler
+package authentication
 
 import (
 	"backend-golang/email"
@@ -11,54 +11,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-const (
-	// 1つのクエリで両方をチェック
-	checkDuplicateCredentialsQuery = `
-        SELECT 
-            EXISTS(SELECT 1 FROM users WHERE username = ?) as username_exists,
-            EXISTS(SELECT 1 FROM users WHERE email = ?) as email_exists
-	`
-	// 新規ユーザーを登録するためのクエリ
-	insertNewUserQuery = `
-        INSERT INTO users (
-            username, 
-            email, 
-            password
-        ) VALUES (?, ?, ?)
-    `
-	insertNewUserInfoQuery = `
-        INSERT INTO user_info (
-            user_id, 
-            lastname, 
-            firstname, 
-			birthdate,
-            is_gps, 
-            gender, 
-            sexual_orientation, 
-            eria
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `
-)
-
-type SignupRequest struct {
-	Username   string `json:"username" validate:"required,username"`
-	Email      string `json:"email" validate:"required,email"`
-	Lastname   string `json:"lastname" validate:"required,name"`
-	Firstname  string `json:"firstname" validate:"required,name"`
-	Password   string `json:"password" validate:"required,password"`
-	RePassword string `json:"repassword" validate:"required,password"`
-
-	//IsGpsEnabled bool `json:"isGpsEnabled" validate:"required"`
-	// requiredをbool型煮付けるとfalseだとエラーだと判定してしまう。
-	IsGpsEnabled bool `json:"isGpsEnabled"`
-
-	Gender            string `json:"gender" validate:"required,oneof=male female"`
-	SexualOrientation string `json:"sexual_orientation" validate:"required,oneof=heterosexual homosexual bisexual"`
-
-	Eria string `json:"eria" validate:"required,eria"`
-
-	BirthDate string `json:"birthdate" validate:"required,birthdate"`
-}
 
 func SignupHandler(db *sql.DB) echo.HandlerFunc {
 	return func(c echo.Context) error {

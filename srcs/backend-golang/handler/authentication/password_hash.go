@@ -1,4 +1,4 @@
-package handler
+package authentication
 
 import "golang.org/x/crypto/bcrypt"
 

@@ -1,4 +1,4 @@
-package handler
+package authentication
 
 import (
 	jwttokens "backend-golang/handler/jwt_tokens"
@@ -10,40 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-const (
-	// ユーザーのオンラインステータスを更新するクエリ
-	updateUserOnlineStatusQuery = `
-        UPDATE users 
-        SET is_online = TRUE 
-        WHERE id = ?
-    `
-	// ユーザー名からユーザー情報を取得するクエリ
-	selectUserByUsernameQuery = `
-        SELECT id, username, password, is_registered
-        FROM users 
-        WHERE username = ?
-        LIMIT 1
-    `
-)
 
-type LoginRequest struct {
-	Username string `json:"username" validate:"required,username"`
-	Password string `json:"password" validate:"required,password"`
-}
-
-// トークンのレスポンス用構造体を追加
-type TokenResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-}
-
-// User はデータベースのユーザー情報を表す構造体
-type User struct {
-	ID             int
-	Username       string
-	HashedPassword string
-	isRegistered   bool
-}
 
 // ErrUserNotFound はユーザーが見つからない場合のエラー
 var ErrUserNotFound = errors.New("user not found")

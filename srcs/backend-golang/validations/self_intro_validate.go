@@ -7,7 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func validateBio(fl validator.FieldLevel) bool {
+func validateSelfIntro(fl validator.FieldLevel) bool {
 	text := fl.Field().String()
 
 	// 1. 基本的な長さチェック

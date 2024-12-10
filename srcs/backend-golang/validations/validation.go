@@ -20,6 +20,7 @@ func NewCustomValidator() *CustomValidator {
 	v.RegisterValidation("name", validateName)
 	v.RegisterValidation("eria", validateEria)
 	v.RegisterValidation("birthdate", validateBirthdate)
+	v.RegisterValidation("self_intro", validateSelfIntro)
 	return &CustomValidator{validator: v}
 }
 
@@ -56,6 +57,8 @@ func formatValidationError(err error) error {
 			errMsgs = append(errMsgs, "Invalid prefecture")
 		case "birthdate":
 			errMsgs = append(errMsgs, "Invalid date")
+		case "self_intro":
+			errMsgs = append(errMsgs, "Invalid self intro")
 		}
 	}
 

@@ -43,3 +43,14 @@ CREATE TABLE IF NOT EXISTS user_info (
     self_intro VARCHAR(300) NOT NULL DEFAULT '', /* 自己紹介 */
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+
+-- tag
+CREATE TABLE IF NOT EXISTS tags (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE, -- tab名は重複禁止
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usage_count INT DEFAULT 0, -- タグの使用回数、userに最初に提案に使える？、いらないかも
+    INDEX idx_tag_name (name),
+    INDEX idx_usage_count (usage_count)
+);

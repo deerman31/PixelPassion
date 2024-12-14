@@ -10,6 +10,8 @@ import (
 )
 
 func UpdateUsernameHandler(db *sql.DB) echo.HandlerFunc {
+	fmt.Println("UpdateUsernameHandler")
+
 	return func(c echo.Context) error {
 		claims, ok := c.Get("user").(*jwttokens.Claims)
 		if !ok {

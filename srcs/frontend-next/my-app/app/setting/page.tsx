@@ -5,75 +5,137 @@ import { Header } from '../components/Header'
 import * as Form from '@radix-ui/react-form'
 import * as AlertDialog from '@radix-ui/react-alert-dialog'
 
-import { useSettingUpForm } from './useSettingForm'
 import { FormTextField } from '../components/FormTextField'
 import { CheckboxField } from '../components/CheckboxField'
 import { RadioGroupField } from '../components/RadioField'
+import { useSettingForm } from './useSettingForm'
 import { GENDER_OPTIONS, ORIENTATION_OPTIONS, PREFECTURES } from './formOptions'
 import { SelectField } from '../components/SelectField'
 
 export default function Page() {
     const {
-        formData,
         error,
         showError,
         setShowError,
-        handleTextChange,
-        handleCheckboxChange,
-        handleRadioChange,
-        handleSubmit,
-        setFormData
-    } = useSettingUpForm()
+        usernameformData,
+        handleUsernameChange,
+        handleUsernameSubmit,
+        emailFormData,
+        handleEmailChange,
+        handleEmailSubmit,
+        fullnameFormData,
+        handleFullnameChange,
+        handleFullnameSubmit,
+        gpsFormData,
+        handleGpsCheckboxChange,
+        handleGpsSubmit,
+        genderFormData,
+        handleGenderRadioChange,
+        handleGenderSubmit,
+        sexualFormData,
+        handleSexualRadioChange,
+        handleSexualSubmit,
+        eriaFormData,
+        handleEriaSubmit,
+        setEriaFormData
+    } = useSettingForm()
 
     return (
         <div className="min-h-screen bg-black">
             <Header />
             <main className="pt-24 pb-16 px-4">
                 <div className="max-w-md mx-auto bg-white rounded-lg shadow p-8">
-                    <h1 className="text-2xl font-bold text-gray-900 text-center mb-6">
-                        Setting
-                    </h1>
-
-                    <Form.Root onSubmit={handleSubmit} className="space-y-4">
+                    <Form.Root onSubmit={handleUsernameSubmit} className="space-y-4">
                         {/* Username */}
-                        <FormTextField name='username' label='Username' value={formData.username} onChange={handleTextChange} placeholder='Enter your username' />
-                        {/* First Name */}
-                        <FormTextField name='firstname' label='Firstname' value={formData.firstname} onChange={handleTextChange} placeholder='Enter your firstname' />
-                        {/* Last Name */}
-                        <FormTextField name='lastname' label='Lastname' value={formData.lastname} onChange={handleTextChange} placeholder='Enter your lastname' />
-                        {/* Email */}
-                        <FormTextField name='email' label='Email' type='email' value={formData.email} onChange={handleTextChange} placeholder="Enter your email address" />
-                        {/* Password */}
-                        <FormTextField name='password' label='Password' type='password' value={formData.password} onChange={handleTextChange} placeholder="Enter your password" />
-                        {/* Confirm Password */}
-                        <FormTextField name='repassword' label='Confirm Password' type='password' value={formData.repassword} onChange={handleTextChange} placeholder="Enter confirm your password" />
-
-                        {/* GPS Setting */}
-                        <CheckboxField name='isGpsEnabled' label='Enable GPS Location' checked={formData.isGpsEnabled} onChange={handleCheckboxChange} />
-                        {/* Gender */}
-                        <RadioGroupField name='gender' label='Gender' value={formData.gender} options={GENDER_OPTIONS} onChange={(value) => handleRadioChange('gender', value)} orientation='horizontal' />
-
-                        {/* Sexual Orientation */}
-                        <RadioGroupField name='sexual_orientation' label='Sexual Orientation' value={formData.sexual_orientation} options={ORIENTATION_OPTIONS} onChange={(value) => handleRadioChange('sexual_orientation', value)} orientation='vertical' capitalize />
-
-                        <SelectField
-                            name="prefecture"
-                            label="Prefecture"
-                            value={formData.eria}
-                            options={PREFECTURES}
-                            onChange={(value) => setFormData({ ...formData, eria: value })}
-                            placeholder="Select Prefecture"
-                            errorMessage="Please select your prefecture"
-                            selectGroupLabel="都道府県を選択してください"
-                        />
-
+                        <FormTextField name='username' label='Username' value={usernameformData.username} onChange={handleUsernameChange} placeholder='Enter your username' />
                         {/* Submit Button */}
                         <Form.Submit asChild>
                             <button
                                 type="submit"
                                 className="w-full bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors"
                             >
-                                Sign Up
+                                Update Username
+                            </button>
+                        </Form.Submit>
+                    </Form.Root>
+                    <Form.Root onSubmit={handleEmailSubmit} className="space-y-4">
+                        {/* Username */}
+                        <FormTextField name='email' label='Email' value={emailFormData.email} onChange={handleEmailChange} placeholder='Enter your email' />
+                        {/* Submit Button */}
+                        <Form.Submit asChild>
+                            <button
+                                type="submit"
+                                className="w-full bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors"
+                            >
+                                Update Email
+                            </button>
+                        </Form.Submit>
+                    </Form.Root>
+                    <Form.Root onSubmit={handleFullnameSubmit} className="space-y-4">
+                        <FormTextField name='firstname' label='Firstname' value={fullnameFormData.firstname} onChange={handleFullnameChange} placeholder='Enter your firstname' />
+                        <FormTextField name='lastname' label='Lastname' value={fullnameFormData.lastname} onChange={handleFullnameChange} placeholder='Enter your lastname' />
+                        <Form.Submit asChild>
+                            <button
+                                type="submit"
+                                className="w-full bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors"
+                            >
+                                Update Fullname
+                            </button>
+                        </Form.Submit>
+                    </Form.Root>
+                    <Form.Root onSubmit={handleGpsSubmit} className="space-y-4">
+                        <CheckboxField name='isGpsEnabled' label='Enable GPS Location' checked={gpsFormData.isGpsEnabled} onChange={handleGpsCheckboxChange} />
+                        <Form.Submit asChild>
+                            <button
+                                type="submit"
+                                className="w-full bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors"
+                            >
+                                Update GpsEnabled
+                            </button>
+                        </Form.Submit>
+                    </Form.Root>
+
+                    <Form.Root onSubmit={handleGenderSubmit} className="space-y-4">
+                        <RadioGroupField name='gender' label='Gender' value={genderFormData.gender} options={GENDER_OPTIONS} onChange={(value) => handleGenderRadioChange('gender', value)} orientation='horizontal' />
+                        <Form.Submit asChild>
+                            <button
+                                type="submit"
+                                className="w-full bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors"
+                            >
+                                Update Gender
+                            </button>
+                        </Form.Submit>
+                    </Form.Root>
+
+                    <Form.Root onSubmit={handleSexualSubmit} className="space-y-4">
+                        <RadioGroupField name='sexual_orientation' label='Sexual Orientation' value={sexualFormData.sexual_orientation} options={ORIENTATION_OPTIONS} onChange={(value) => handleSexualRadioChange('sexual_orientation', value)} orientation='vertical' capitalize />
+                        <Form.Submit asChild>
+                            <button
+                                type="submit"
+                                className="w-full bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors"
+                            >
+                                Update Sexual Orientation
+                            </button>
+                        </Form.Submit>
+                    </Form.Root>
+
+                    <Form.Root onSubmit={handleEriaSubmit} className="space-y-4">
+                        <SelectField
+                            name="prefecture"
+                            label="Prefecture"
+                            value={eriaFormData.eria}
+                            options={PREFECTURES}
+                            onChange={(value) => setEriaFormData({ ...eriaFormData, eria: value })}
+                            placeholder="Select Prefecture"
+                            errorMessage="Please select your prefecture"
+                            selectGroupLabel="都道府県を選択してください"
+                        />
+                        <Form.Submit asChild>
+                            <button
+                                type="submit"
+                                className="w-full bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors"
+                            >
+                                Update Eria
                             </button>
                         </Form.Submit>
                     </Form.Root>

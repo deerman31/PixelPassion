@@ -36,7 +36,6 @@ const (
         WHERE user_id = ?
     `
 
-
 	// ユーザーのeriaを更新するクエリ
 	updateEriaQuery = `
         UPDATE user_info 

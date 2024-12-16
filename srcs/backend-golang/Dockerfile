@@ -79,6 +79,8 @@ USER appuser
 
 # /app/uploads/images
 RUN mkdir -p /home/appuser/uploads/images
+RUN mkdir -p /home/appuser/uploads/images/default_image
+COPY ./default_image/napoleon.png /home/appuser/uploads/images/default_image
 
 #EXPOSE 3000
 EXPOSE ${PORT}

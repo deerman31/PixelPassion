@@ -10,15 +10,20 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func defaultUserSet(db *sql.DB) {
-	// $2a$10$4cGIYd0K9uIyOp9rixSB4.nHSn9.evNVaZe.rCtkpKLW0oVlqETz6
 	username := "ykusano"
 	email := "ykusano@test.com"
 	firstname := "Yoshinari"
 	lastname := "Kusano"
-	password := "$2a$10$4cGIYd0K9uIyOp9rixSB4.nHSn9.evNVaZe.rCtkpKLW0oVlqETz6"
+	hashedBytes, err := bcrypt.GenerateFromPassword([]byte("Oinari0618!"), bcrypt.DefaultCost)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+	password := string(hashedBytes)
 	IsGpsEnabled := true
 	Gender := "male"
 	SexualOrientation := "heterosexual"
@@ -36,7 +41,7 @@ func defaultUserSet(db *sql.DB) {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-	userID, err := result.LastInsertId()
+	userID, _ := result.LastInsertId()
 	if _, err := tx.Exec("INSERT INTO user_info (user_id, lastname, firstname, birthdate, is_gps, gender, sexual_orientation, eria) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", userID, lastname, firstname, BirthDate, IsGpsEnabled, Gender, SexualOrientation, Eria); err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)

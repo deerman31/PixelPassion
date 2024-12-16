@@ -77,6 +77,9 @@ RUN chmod +x backend-boot.sh
 # 非root ユーザーに切り替え
 USER appuser
 
+# /app/uploads/images
+RUN mkdir -p /home/appuser/uploads/images
+
 #EXPOSE 3000
 EXPOSE ${PORT}
 

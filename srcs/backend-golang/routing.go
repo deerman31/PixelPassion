@@ -30,4 +30,5 @@ func routing(e *echo.Echo, db *sql.DB) {
 	protected.POST("/update/gender", update.UpdateGenderHandler(db))
 	protected.POST("/update/sexual", update.UpdateSexualOrientationHandler(db))
 	protected.POST("/update/eria", update.UpdateEriaHandler(db))
+	protected.POST("/update/image", update.UpdateImageHandler(db))
 }

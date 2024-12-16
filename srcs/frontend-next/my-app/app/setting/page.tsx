@@ -140,6 +140,20 @@ export default function Page() {
                         </Form.Submit>
                     </Form.Root>
 
+                    {/* Image Upload Link Button */}
+                    <div className="mt-8">
+                        <Form.Root className="space-y-4">
+                            <Form.Submit asChild>
+                                <a
+                                    href="/setting/image_upload"
+                                    className="block w-full bg-emerald-600 text-white text-center py-2 px-4 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors"
+                                >
+                                    Upload Profile Image
+                                </a>
+                            </Form.Submit>
+                        </Form.Root>
+                    </div>
+
                 </div>
             </main>
             {/* Error Dialog */}

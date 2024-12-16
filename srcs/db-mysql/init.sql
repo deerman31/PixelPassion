@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS user_info (
         'Fukuoka', 'Saga', 'Nagasaki', 'Kumamoto', 'Oita', 'Miyazaki', 'Kagoshima', 'Okinawa'
     ) NOT NULL DEFAULT 'Tokyo', /* 都道府県 */
     self_intro VARCHAR(300) NOT NULL DEFAULT '', /* 自己紹介 */
+    profile_image_path1 VARCHAR(255) DEFAULT NULL, /* プロフィール画像のパス */
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 

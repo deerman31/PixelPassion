@@ -50,6 +50,10 @@ func SignupHandler(db *sql.DB) echo.HandlerFunc {
 		}
 		req.Password = string(hashedBytes)
 
+		// fmt.Println("hashPassword------------ ")
+		// fmt.Println(req.Password)
+		// fmt.Println("hashPassword------------ ")
+
 		// ユーザーの登録
 		userID, err := createUser(tx, req)
 		if err != nil {

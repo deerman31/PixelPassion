@@ -28,7 +28,8 @@ func signNewToken(userID int, tokenType TokenType, expiresAt time.Time, secretKe
 	return tokenString, nil
 }
 
-func GenerateAccessToken(userID int, tx *sql.Tx, secretKey string) (string, error) {
+// func GenerateAccessToken(userID int, tx *sql.Tx, secretKey string) (string, error) {
+func GenerateAccessToken(userID int, secretKey string) (string, error) {
 	// AccessTokenを生成
 	accessExpiresAt := calculateAccessTokenExpiry()
 
@@ -39,7 +40,8 @@ func GenerateAccessToken(userID int, tx *sql.Tx, secretKey string) (string, erro
 	return accessToken, nil
 }
 
-func GenerateRefreshToken(userID int, tx *sql.Tx, secretKey string) (string, error) {
+// func GenerateRefreshToken(userID int, tx *sql.Tx, secretKey string) (string, error) {
+func GenerateRefreshToken(userID int, secretKey string) (string, error) {
 	// Refresh Token生成
 	refreshExpiresAt := calculateRefreshTokenExpiry()
 	refreshToken, err := signNewToken(userID, RefreshToken, refreshExpiresAt, secretKey)
@@ -57,16 +59,20 @@ func GenerateTokenPair(userID int, tx *sql.Tx) (*TokenPair, error) {
 	}
 
 	// AccessTokenを生成
-	accessToken, err := GenerateAccessToken(userID, tx, secretKey)
+	//accessToken, err := GenerateAccessToken(userID, tx, secretKey)
+	accessToken, err := GenerateAccessToken(userID, secretKey)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("accessToken: ", accessToken)
 
 	// Refresh Token生成
-	refreshToken, err := GenerateRefreshToken(userID, tx, secretKey)
+	//refreshToken, err := GenerateRefreshToken(userID, tx, secretKey)
+	refreshToken, err := GenerateRefreshToken(userID, secretKey)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("refreshToken: ", refreshToken)
 
 	salt, err := generateSalt()
 	if err != nil {
@@ -78,6 +84,7 @@ func GenerateTokenPair(userID int, tx *sql.Tx) (*TokenPair, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("refreshToken hash: ", tokenHash)
 
 	refreshExpiresAt := calculateRefreshTokenExpiry()
 	// DBにRefresh tokenを保存

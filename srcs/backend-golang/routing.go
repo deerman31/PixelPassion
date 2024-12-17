@@ -3,6 +3,8 @@ package main
 import (
 	"backend-golang/handler"
 	"backend-golang/handler/authentication"
+	"backend-golang/handler/get"
+	jwttokens "backend-golang/handler/jwt_tokens"
 	"backend-golang/handler/update"
 	"backend-golang/middleware"
 	"database/sql"
@@ -20,6 +22,8 @@ func routing(e *echo.Echo, db *sql.DB) {
 	g.POST("/logout", authentication.LogoutHandler(db))
 	g.GET("/verify-email", authentication.VerifyEmailHandler(db))
 
+	g.POST("/jwt/refresh", jwttokens.RefreshTokenHandler(db))
+
 	// 保護されたルート(認証が必要)
 	protected := e.Group("/api")
 	protected.Use(middleware.JWTMiddleware())
@@ -31,4 +35,7 @@ func routing(e *echo.Echo, db *sql.DB) {
 	protected.POST("/update/sexual", update.UpdateSexualOrientationHandler(db))
 	protected.POST("/update/eria", update.UpdateEriaHandler(db))
 	protected.POST("/update/image", update.UpdateImageHandler(db))
+
+	protected.GET("/get/image", get.GetImageHandler(db))
+
 }

@@ -17,14 +17,15 @@ func ValidateRefreshToken(db *sql.DB, userID int, tokenString string) (bool, err
 		}
 		return false, fmt.Errorf("database error: %w", err)
 	}
-	// expiresAt
-	if time.Now().After(expiresAt) {
-	}
-
 	// 保存されているソルトを使用して入力されたトークンをハッシュ化
 	computedHash, err := hashTokenWithSalt(tokenString, storedSalt)
 	if err != nil {
 		return false, err
+	}
+
+	// expiresAt
+	if time.Now().After(expiresAt) {
+		return false, fmt.Errorf("RefreshToken has expired")
 	}
 
 	// 同じソルトを使用するため、同じトークンなら同じハッシュ値が生成されるため、

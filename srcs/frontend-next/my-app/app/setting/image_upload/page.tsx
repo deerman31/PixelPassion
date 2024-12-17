@@ -2,7 +2,7 @@
 
 import { Header } from '../../components/Header'
 import * as Form from '@radix-ui/react-form'
-import { useState, type ChangeEvent, type FormEvent } from 'react'
+import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react'
 import { Upload } from 'lucide-react'
 import { getSessionAccessToken } from '@/app/utils/veridy_token'
 
@@ -19,6 +19,7 @@ interface FileValidation {
 type UploadState = {
     selectedFile: File | null;
     previewUrl: string | null;
+    currentImageUrl: string | null;  // 現在の画像URL用の新しいstate
     uploading: boolean;
     error: string | null;
 }
@@ -34,9 +35,44 @@ export default function Page(): JSX.Element {
     const [uploadState, setUploadState] = useState<UploadState>({
         selectedFile: null,
         previewUrl: null,
+        currentImageUrl: null,  // 初期値を追加
         uploading: false,
         error: null
     })
+
+    // 現在の画像を取得するuseEffect
+    useEffect(() => {
+        const fetchCurrentImage = async () => {
+            try {
+                const accessToken = getSessionAccessToken();
+                const response = await fetch('/api/get/image', {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch current image');
+                }
+
+                const data = await response.json();
+                console.log('Fetched image data:', data); // デバッグ用
+
+                setUploadState(prev => ({
+                    ...prev,
+                    currentImageUrl: data.image  // currentImage ではなく currentImageUrl に修正
+                }));
+            } catch (err) {
+                console.error('Error fetching current image:', err);
+                setUploadState(prev => ({
+                    ...prev,
+                    error: 'Failed to load current image'
+                }));
+            }
+        };
+
+        fetchCurrentImage();
+    }, []);
 
     const validateFile = (file: File): string | null => {
         if (file.size > FILE_VALIDATION.maxSize) {
@@ -71,12 +107,12 @@ export default function Page(): JSX.Element {
         // Create preview URL
         const url = URL.createObjectURL(file)
 
-        setUploadState({
+        setUploadState(prev => ({
+            ...prev,
             selectedFile: file,
             previewUrl: url,
-            uploading: false,
             error: null
-        })
+        }))
     }
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
@@ -113,28 +149,29 @@ export default function Page(): JSX.Element {
                 throw new Error(`HTTP error! status: ${response.status}`)
             }
 
-            // Clear form and preview after successful upload
+            // アップロード成功後、現在の画像を更新
+            const data = await response.json();
+            console.log('Upload response:', data); // デバッグ用
+
             setUploadState({
                 selectedFile: null,
                 previewUrl: null,
+                currentImageUrl: data.image,  // 新しい画像URLで更新
                 uploading: false,
                 error: null
             })
 
-            // Redirect after successful upload
-            window.location.href = '/setting/image_upload'
-
         } catch (err) {
-            let err_messeage = "";
+            let err_message = "";
             if (err instanceof Error) {
-                err_messeage = err.message
+                err_message = err.message
             } else {
-                err_messeage = 'Failed to upload image. Please try again.'
+                err_message = 'Failed to upload image. Please try again.'
             }
             setUploadState(prev => ({
                 ...prev,
                 uploading: false,
-                error: err_messeage
+                error: err_message
             }))
         }
     }
@@ -144,11 +181,27 @@ export default function Page(): JSX.Element {
             <Header />
             <main className="pt-24 pb-16 px-4">
                 <div className="max-w-md mx-auto bg-white rounded-lg shadow p-8">
+                    {/* 現在の画像表示セクション */}
+                    {uploadState.currentImageUrl && !uploadState.previewUrl && (
+                        <div className="mb-6">
+                            <h3 className="text-sm font-medium text-gray-700 mb-2">
+                                Current Image
+                            </h3>
+                            <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-gray-100">
+                                <img
+                                    src={uploadState.currentImageUrl}
+                                    alt="Current"
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                        </div>
+                    )}
+
                     <Form.Root className="space-y-6" onSubmit={handleSubmit}>
                         {/* File Input Section */}
                         <div className="space-y-4">
                             <label className="block text-sm font-medium text-gray-700">
-                                Upload Image
+                                Upload New Image
                             </label>
 
                             {/* Preview Section */}
@@ -203,16 +256,6 @@ export default function Page(): JSX.Element {
                                 {uploadState.uploading ? 'Uploading...' : 'Upload Image'}
                             </button>
                         </Form.Submit>
-
-                        {/* 42Tokyo Link */}
-                        <div className="mt-4">
-                            <a
-                                href="/setting/image_upload"
-                                className="block w-full bg-emerald-600 text-white text-center py-2 px-4 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors"
-                            >
-                                42Tokyo
-                            </a>
-                        </div>
                     </Form.Root>
                 </div>
             </main>

@@ -1,5 +1,5 @@
 // app/forgot-password/page.tsx
-import { AuthHeader } from '../components/AuthHeader'
+import { AuthHeader } from "../components/AuthHeader";
 
 export default function Page() {
   return (
@@ -13,7 +13,8 @@ export default function Page() {
           </h1>
 
           <p className="text-gray-600 text-center mb-8">
-            Enter your email address and we&apos;ll send you instructions to reset your password.
+            Enter your email address and we&apos;ll send you instructions to
+            reset your password.
           </p>
 
           <form className="space-y-4">
@@ -46,7 +47,7 @@ export default function Page() {
           {/* Back to Login Link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Remember your password?{' '}
+              Remember your password?{" "}
               <a
                 href="/login"
                 className="text-emerald-600 hover:text-emerald-700 font-medium"
@@ -58,5 +59,5 @@ export default function Page() {
         </div>
       </main>
     </div>
-  )
+  );
 }

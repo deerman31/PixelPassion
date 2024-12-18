@@ -17,7 +17,10 @@ func ConnectDB() (*sql.DB, error) {
 	dbName := os.Getenv("MYSQL_DATABASE")
 
 	// データベース接続文字列を構築
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
+	//dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
+	// データベース接続文字列を構築（parseTime=trueを追加）
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+		dbUser, dbPass, dbHost, dbPort, dbName)
 
 	// データベースに接続
 	db, err := sql.Open("mysql", dsn)

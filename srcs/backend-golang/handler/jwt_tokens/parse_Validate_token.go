@@ -17,6 +17,7 @@ func ParseAndValidateToken(tokenString, secretKey string) (*Claims, error) {
 		return []byte(secretKey), nil
 	})
 	if err != nil {
+		// fmt.Println("ZZZZZ:" ,err.Error())
 		return nil, err
 	}
 	// クレームの取得と検証

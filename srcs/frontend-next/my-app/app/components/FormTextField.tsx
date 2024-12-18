@@ -1,5 +1,5 @@
-import { ChangeEvent } from 'react'
-import * as Form from '@radix-ui/react-form'
+import { ChangeEvent } from "react";
+import * as Form from "@radix-ui/react-form";
 
 interface FormTextFieldProps {
   name: string;
@@ -20,7 +20,7 @@ export function FormTextField({
   type = "text",
   required = true,
   placeholder = "",
-  errorMessage = `Please enter your ${label.toLowerCase()}`
+  errorMessage = `Please enter your ${label.toLowerCase()}`,
 }: FormTextFieldProps) {
   return (
     <Form.Field name={name} className="grid mb-4">

@@ -1,11 +1,11 @@
 // app/login/page.tsx
-'use client'
+"use client";
 
-import { AuthHeader } from '../components/AuthHeader'
-import * as Form from '@radix-ui/react-form'
-import { FormTextField } from '../components/FormTextField'
-import { useLoginForm } from './useLoginForm'
-import * as AlertDialog from '@radix-ui/react-alert-dialog'
+import { AuthHeader } from "../components/AuthHeader";
+import * as Form from "@radix-ui/react-form";
+import { FormTextField } from "../components/FormTextField";
+import { useLoginForm } from "./useLoginForm";
+import * as AlertDialog from "@radix-ui/react-alert-dialog";
 
 export default function Page() {
   const {
@@ -15,7 +15,7 @@ export default function Page() {
     setShowError,
     handleTextChange,
     handleSubmit,
-  } = useLoginForm()
+  } = useLoginForm();
 
   return (
     <div className="min-h-screen bg-black">
@@ -30,19 +30,19 @@ export default function Page() {
           <Form.Root onSubmit={handleSubmit} className="space-y-4">
             {/* Username */}
             <FormTextField
-              name='username'
-              label='Username'
+              name="username"
+              label="Username"
               value={formData.username}
               onChange={handleTextChange}
-              placeholder='Enter your username'
+              placeholder="Enter your username"
             />
             {/* Password */}
             <FormTextField
-              name='password'
-              label='Password'
+              name="password"
+              label="Password"
               value={formData.password}
               onChange={handleTextChange}
-              placeholder='Enter your password'
+              placeholder="Enter your password"
             />
 
             {/* Submit Button */}
@@ -53,8 +53,6 @@ export default function Page() {
               >
                 Login
               </button>
-
-
             </Form.Submit>
 
             {/* Forgot Password Link */}
@@ -70,7 +68,7 @@ export default function Page() {
             {/* Sign Up Link */}
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
-                Don&apos;t have an account?{' '}
+                Don&apos;t have an account?{" "}
                 <a
                   href="/signup"
                   className="text-emerald-600 hover:text-emerald-700 font-medium"
@@ -79,8 +77,6 @@ export default function Page() {
                 </a>
               </p>
             </div>
-
-
           </Form.Root>
         </div>
       </main>
@@ -108,5 +104,5 @@ export default function Page() {
         </AlertDialog.Portal>
       </AlertDialog.Root>
     </div>
-  )
+  );
 }

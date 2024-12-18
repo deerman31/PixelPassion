@@ -4,7 +4,6 @@ import (
 	"backend-golang/handler"
 	"backend-golang/handler/authentication"
 	"backend-golang/handler/get"
-	jwttokens "backend-golang/handler/jwt_tokens"
 	"backend-golang/handler/update"
 	"backend-golang/middleware"
 	"database/sql"
@@ -22,7 +21,7 @@ func routing(e *echo.Echo, db *sql.DB) {
 	g.POST("/logout", authentication.LogoutHandler(db))
 	g.GET("/verify-email", authentication.VerifyEmailHandler(db))
 
-	g.POST("/jwt/refresh", jwttokens.RefreshTokenHandler(db))
+	g.POST("/refresh", authentication.RefreshTokenHandler(db))
 
 	// 保護されたルート(認証が必要)
 	protected := e.Group("/api")

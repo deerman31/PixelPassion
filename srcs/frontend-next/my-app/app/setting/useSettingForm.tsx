@@ -1,277 +1,251 @@
+import { FormEvent, useState, ChangeEvent } from "react";
+import {
+    SettingEmailFormData,
+    SettingEriaFormData,
+    SettingErrorResponse,
+    SettingFullnameFormData,
+    SettingGenderFormData,
+    SettingGpsEnabledFormData,
+    SettingSexualOrientationFormData,
+    SettingUsernameFormData,
+} from "./settingTypes";
+import {
+    getSessionAccessToken,
+    getSessionRefreshToken,
+    removeSessionAccessToken,
+    removeSessionRefreshToken,
+    setSessionAccessToken,
+} from "../utils/veridy_token";
 
-import { useState, ChangeEvent, FormEvent } from 'react'
-import { SettingEmailFormData, SettingEriaFormData, SettingErrorResponse, SettingFullnameFormData, SettingGenderFormData, SettingGpsEnabledFormData, SettingSexualOrientationFormData, SettingUsernameFormData } from './settingTypes'
-import { getSessionAccessToken } from '../utils/veridy_token'
+// すべてのフォームデータ型のユニオン型を定義
+//type FormDataType = EndpointFormDataMap[EndpointType];
+
+// エンドポイントと対応するフォームデータ型のマッピング
+interface EndpointFormDataMap {
+    email: SettingEmailFormData;
+    eria: SettingEriaFormData;
+    fullname: SettingFullnameFormData;
+    gender: SettingGenderFormData;
+    isgps: SettingGpsEnabledFormData;
+    sexual: SettingSexualOrientationFormData;
+    username: SettingUsernameFormData;
+}
+// エンドポイント名の型
+type EndpointType = keyof EndpointFormDataMap;
+
+// エラー型の定義
+interface AuthError extends Error {
+    code?: string;
+}
+// APIリクエストの型定義を改善
+interface ApiRequestConfig<T extends EndpointType> {
+    endpoint: T;
+    formData: EndpointFormDataMap[T];
+}
+// ログアウト処理を関数として分離
+const handleLogout = () => {
+    removeSessionAccessToken();
+    removeSessionRefreshToken();
+    window.location.href = "/login";
+};
+// アクセストークンのリフレッシュ関数
+const refreshAccessToken = async (): Promise<string> => {
+    const accessToken = getSessionAccessToken();
+    const refreshToken = getSessionRefreshToken();
+
+    const response = await fetch("/api/refresh", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            accessToken,
+            refreshToken,
+        }),
+    });
+    if (!response.ok) {
+        const error = new Error("Token refresh failed") as AuthError;
+        error.code = response.status === 401
+            ? "REFRESH_TOKEN_EXPIRED"
+            : "REFRESH_FAILED";
+        throw error;
+    }
+    const data = await response.json();
+    removeSessionAccessToken();
+    setSessionAccessToken(data.AccessToken);
+    return data.AccessToken;
+};
 
 export const useSettingForm = () => {
     // エラー状態の管理
-    const [error, setError] = useState<string>('')
-    const [showError, setShowError] = useState<boolean>(false)
+    const [error, setError] = useState<string>("");
+    const [showError, setShowError] = useState<boolean>(false);
 
-    const [usernameformData, setusernameformData] = useState<SettingUsernameFormData>({
-        username: ''
-    })
+
+    // 汎用的なAPIリクエストハンドラー
+    const handleApiRequest = async <T extends EndpointType>(config: ApiRequestConfig<T>): Promise<Response> => {
+        const { endpoint, formData } = config;
+        const accessToken = getSessionAccessToken();
+
+        try {
+            return await makeApiRequest(endpoint, accessToken, formData);
+        } catch (err) {
+            const error = err as AuthError;
+            if (error.code === "ACCESS_TOKEN_EXPIRED") {
+                try {
+                    const newAccessToken = await refreshAccessToken();
+                    return await makeApiRequest(endpoint, newAccessToken, formData);
+                } catch (refreshErr) {
+                    const refreshError = refreshErr as AuthError;
+                    if (refreshError.code === "REFRESH_TOKEN_EXPIRED") {
+                        handleLogout();
+                        throw refreshError;
+                    }
+                    throw refreshErr;
+                }
+            }
+            throw error;
+        }
+    };
+
+    // 汎用的なフォーム送信ハンドラーを作成するファクトリー関数
+    const createSubmitHandler = <T extends EndpointType>(endpoint: T) => {
+        return async (event: FormEvent<HTMLFormElement>, formData: EndpointFormDataMap[T]) => {
+            event.preventDefault();
+            setError("");
+
+            try {
+                await handleApiRequest({ endpoint, formData });
+                setShowError(false);
+            } catch (err) {
+                const error = err as AuthError;
+                setError(error.message || "An unexpected error occurred");
+                setShowError(true);
+            }
+        };
+    };
+
+    // 基本的なAPIリクエスト関数
+    const makeApiRequest = async <T extends EndpointType>(endpoint: T, accessToken: string, formData: EndpointFormDataMap[T],
+    ): Promise<Response> => {
+        const response = await fetch(`/api/update/${endpoint}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify(formData),
+        });
+        if (!response.ok) {
+            const errorData: SettingErrorResponse = await response.json();
+            const error = new Error(
+                errorData.error || `Update ${endpoint} failed`,
+            ) as AuthError;
+            error.code = response.status === 401
+                ? "ACCESS_TOKEN_EXPIRED"
+                : "UPDATE_FAILED";
+            throw error;
+        }
+        return response;
+    };
+
+    // 各Submit関数の実装
+    const [usernameformData, setusernameformData] = useState<
+        SettingUsernameFormData
+    >({
+        username: "",
+    });
     // テキストフィールドの変更ハンドラー
     const handleUsernameChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target
-        setusernameformData(prev => ({
+        const { name, value } = e.target;
+        setusernameformData((prev) => ({
             ...prev,
-            [name]: value
-        }))
-    }
-    // フォーム送信ハンドラー
+            [name]: value,
+        }));
+    };
     const handleUsernameSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-        setError('')
-
-        const accessToken = getSessionAccessToken();
-
-        try {
-            const response = await fetch('/api/update/username', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify(usernameformData)
-            })
-            if (!response.ok) {
-                const errorData: SettingErrorResponse = await response.json()
-                throw new Error(errorData.error || "Update username failed")
-            } else {
-                setShowError(false)
-            }
-        } catch (err) {
-            if (err instanceof Error) {
-                setError(err.message)
-            } else {
-                setError('An unexpected error occurred')
-            }
-            setShowError(true)
-        }
-    }
+        await createSubmitHandler('username')(event, usernameformData);
+    };
 
     const [emailFormData, setEmailFormData] = useState<SettingEmailFormData>({
-        email: ''
-    })
+        email: "",
+    });
     const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target
-        setEmailFormData(prev => ({
+        const { name, value } = e.target;
+        setEmailFormData((prev) => ({
             ...prev,
-            [name]: value
-        }))
-    }
+            [name]: value,
+        }));
+    };
     const handleEmailSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-        setError('')
-        const accessToken = getSessionAccessToken();
-        try {
-            const response = await fetch('/api/update/email', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify(emailFormData)
-            })
-            if (!response.ok) {
-                const errorData: SettingErrorResponse = await response.json()
-                throw new Error(errorData.error || "Update email failed")
-            } else {
-                setShowError(false)
-            }
-        } catch (err) {
-            if (err instanceof Error) {
-                setError(err.message)
-            } else {
-                setError('An unexpected error occurred')
-            }
-            setShowError(true)
-        }
-    }
+        await createSubmitHandler('email')(event, emailFormData);
+    };
 
-    const [fullnameFormData, setFullnameFormData] = useState<SettingFullnameFormData>({
-        firstname: '',
-        lastname: ''
-    })
+    const [fullnameFormData, setFullnameFormData] = useState<
+        SettingFullnameFormData
+    >({
+        firstname: "",
+        lastname: "",
+    });
     const handleFullnameChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target
-        setFullnameFormData(prev => ({
+        const { name, value } = e.target;
+        setFullnameFormData((prev) => ({
             ...prev,
-            [name]: value
-        }))
-    }
+            [name]: value,
+        }));
+    };
     const handleFullnameSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-        setError('')
-        const accessToken = getSessionAccessToken();
-        try {
-            const response = await fetch('/api/update/fullname', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify(fullnameFormData)
-            })
-            if (!response.ok) {
-                const errorData: SettingErrorResponse = await response.json()
-                throw new Error(errorData.error || "Update fullname failed")
-            } else {
-                setShowError(false)
-            }
-        } catch (err) {
-            if (err instanceof Error) {
-                setError(err.message)
-            } else {
-                setError('An unexpected error occurred')
-            }
-            setShowError(true)
-        }
-    }
-
+        await createSubmitHandler('fullname')(event, fullnameFormData);
+    };
 
     const [gpsFormData, setGpsFormData] = useState<SettingGpsEnabledFormData>({
-        isGpsEnabled: false
-    })
+        isGpsEnabled: false,
+    });
     const handleGpsCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const { name, checked } = event.target
-        setGpsFormData(prev => ({
+        const { name, checked } = event.target;
+        setGpsFormData((prev) => ({
             ...prev,
-            [name]: checked
-        }))
-    }
+            [name]: checked,
+        }));
+    };
     const handleGpsSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-        setError('')
-        const accessToken = getSessionAccessToken();
-        try {
-            const response = await fetch('/api/update/isgps', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify(gpsFormData)
-            })
-            if (!response.ok) {
-                const errorData: SettingErrorResponse = await response.json()
-                throw new Error(errorData.error || "Update gps failed")
-            }
-        } catch (err) {
-            if (err instanceof Error) {
-                setError(err.message)
-            } else {
-                setError('An unexpected error occurred')
-            }
-            setShowError(true)
-        }
-    }
-
+        await createSubmitHandler('isgps')(event, gpsFormData);
+    };
 
     const [genderFormData, setGenderFormData] = useState<SettingGenderFormData>({
-        gender: 'male',
-    })
+        gender: "male",
+    });
     const handleGenderRadioChange = (name: string, value: string) => {
-        setGenderFormData(prev => ({
+        setGenderFormData((prev) => ({
             ...prev,
-            [name]: value
-        }))
-    }
+            [name]: value,
+        }));
+    };
     const handleGenderSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-        setError('')
-        const accessToken = getSessionAccessToken();
-        try {
-            const response = await fetch('/api/update/gender', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify(genderFormData)
-            })
-            if (!response.ok) {
-                const errorData: SettingErrorResponse = await response.json()
-                throw new Error(errorData.error || "Update Gender failed")
-            }
-        } catch (err) {
-            if (err instanceof Error) {
-                setError(err.message)
-            } else {
-                setError('An unexpected error occurred')
-            }
-            setShowError(true)
-        }
-    }
+        await createSubmitHandler('gender')(event, genderFormData);
+    };
 
-    const [sexualFormData, setSexualFormData] = useState<SettingSexualOrientationFormData>({
-        sexual_orientation: 'heterosexual',
-    })
+    const [sexualFormData, setSexualFormData] = useState<
+        SettingSexualOrientationFormData
+    >({
+        sexual_orientation: "heterosexual",
+    });
     const handleSexualRadioChange = (name: string, value: string) => {
-        setSexualFormData(prev => ({
+        setSexualFormData((prev) => ({
             ...prev,
-            [name]: value
-        }))
-    }
+            [name]: value,
+        }));
+    };
     const handleSexualSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-        setError('')
-        const accessToken = getSessionAccessToken();
-        try {
-            const response = await fetch('/api/update/sexual', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify(sexualFormData)
-            })
-            if (!response.ok) {
-                const errorData: SettingErrorResponse = await response.json()
-                throw new Error(errorData.error || "Update Sexual failed")
-            }
-        } catch (err) {
-            if (err instanceof Error) {
-                setError(err.message)
-            } else {
-                setError('An unexpected error occurred')
-            }
-            setShowError(true)
-        }
-    }
+        await createSubmitHandler('sexual')(event, sexualFormData);
+    };
 
     const [eriaFormData, setEriaFormData] = useState<SettingEriaFormData>({
-        eria: ""
-    })
+        eria: "",
+    });
     const handleEriaSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-        setError('')
-        const accessToken = getSessionAccessToken();
-        try {
-            const response = await fetch('/api/update/eria', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify(eriaFormData)
-            })
-            if (!response.ok) {
-                const errorData: SettingErrorResponse = await response.json()
-                throw new Error(errorData.error || "Update eria failed")
-            } else {
-                setShowError(false)
-            }
-        } catch (err) {
-            if (err instanceof Error) {
-                setError(err.message)
-            } else {
-                setError('An unexpected error occurred')
-            }
-            setShowError(true)
-        }
-    }
+        await createSubmitHandler('eria')(event, eriaFormData);
+    };
 
     return {
         error,
@@ -304,6 +278,6 @@ export const useSettingForm = () => {
 
         eriaFormData,
         handleEriaSubmit,
-        setEriaFormData
-    }
-}
+        setEriaFormData,
+    };
+};

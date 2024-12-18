@@ -64,7 +64,6 @@ func GenerateTokenPair(userID int, tx *sql.Tx) (*TokenPair, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("accessToken: ", accessToken)
 
 	// Refresh Token生成
 	//refreshToken, err := GenerateRefreshToken(userID, tx, secretKey)
@@ -72,7 +71,6 @@ func GenerateTokenPair(userID int, tx *sql.Tx) (*TokenPair, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("refreshToken: ", refreshToken)
 
 	salt, err := generateSalt()
 	if err != nil {
@@ -84,7 +82,6 @@ func GenerateTokenPair(userID int, tx *sql.Tx) (*TokenPair, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("refreshToken hash: ", tokenHash)
 
 	refreshExpiresAt := calculateRefreshTokenExpiry()
 	// DBにRefresh tokenを保存

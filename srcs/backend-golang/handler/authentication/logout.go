@@ -23,7 +23,8 @@ func LogoutHandler(db *sql.DB) echo.HandlerFunc {
 				"error": err.Error(),
 			})
 		}
-		claims, err := jwttokens.ParseAndValidateToken(tokenString, secretKey)
+		//claims, err := jwttokens.ParseAndValidateToken(tokenString, secretKey)
+		claims, err := VerifyTokenClaims(tokenString, secretKey)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
 		}

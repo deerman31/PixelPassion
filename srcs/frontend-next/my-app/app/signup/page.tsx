@@ -1,18 +1,20 @@
-'use client'
+"use client";
 
-import { AuthHeader } from '../components/AuthHeader'
-import * as Form from '@radix-ui/react-form'
-import * as AlertDialog from '@radix-ui/react-alert-dialog'
+import { AuthHeader } from "../components/AuthHeader";
+import * as Form from "@radix-ui/react-form";
+import * as AlertDialog from "@radix-ui/react-alert-dialog";
 
-import { FormTextField } from '../components/FormTextField'
-import { CheckboxField } from '../components/CheckboxField'
-import { RadioGroupField } from '../components/RadioField'
-import { GENDER_OPTIONS, ORIENTATION_OPTIONS, PREFECTURES } from './formOptions'
-import { SelectField } from '../components/SelectField'
-import { useSignUpForm } from './useSignUpForm'
-import FormBirthDateField from '../components/BirthdateField'
-
-
+import { FormTextField } from "../components/FormTextField";
+import { CheckboxField } from "../components/CheckboxField";
+import { RadioGroupField } from "../components/RadioField";
+import {
+  GENDER_OPTIONS,
+  ORIENTATION_OPTIONS,
+  PREFECTURES,
+} from "./formOptions";
+import { SelectField } from "../components/SelectField";
+import { useSignUpForm } from "./useSignUpForm";
+import FormBirthDateField from "../components/BirthdateField";
 
 export default function Page() {
   const {
@@ -24,8 +26,8 @@ export default function Page() {
     handleCheckboxChange,
     handleRadioChange,
     handleSubmit,
-    setFormData
-  } = useSignUpForm()
+    setFormData,
+  } = useSignUpForm();
 
   return (
     <div className="min-h-screen bg-black">
@@ -39,29 +41,94 @@ export default function Page() {
 
           <Form.Root onSubmit={handleSubmit} className="space-y-4">
             {/* Username */}
-            <FormTextField name='username' label='Username' value={formData.username} onChange={handleTextChange} placeholder='Enter your username' />
+            <FormTextField
+              name="username"
+              label="Username"
+              value={formData.username}
+              onChange={handleTextChange}
+              placeholder="Enter your username"
+            />
             {/* First Name */}
-            <FormTextField name='firstname' label='Firstname' value={formData.firstname} onChange={handleTextChange} placeholder='Enter your firstname' />
+            <FormTextField
+              name="firstname"
+              label="Firstname"
+              value={formData.firstname}
+              onChange={handleTextChange}
+              placeholder="Enter your firstname"
+            />
             {/* Last Name */}
-            <FormTextField name='lastname' label='Lastname' value={formData.lastname} onChange={handleTextChange} placeholder='Enter your lastname' />
+            <FormTextField
+              name="lastname"
+              label="Lastname"
+              value={formData.lastname}
+              onChange={handleTextChange}
+              placeholder="Enter your lastname"
+            />
 
             {/* Birth Date */}
-            <FormBirthDateField name='birthdate' label='BirthDate' value={formData.birthdate} onChange={handleTextChange} />
+            <FormBirthDateField
+              name="birthdate"
+              label="BirthDate"
+              value={formData.birthdate}
+              onChange={handleTextChange}
+            />
 
             {/* Email */}
-            <FormTextField name='email' label='Email' type='email' value={formData.email} onChange={handleTextChange} placeholder="Enter your email address" />
+            <FormTextField
+              name="email"
+              label="Email"
+              type="email"
+              value={formData.email}
+              onChange={handleTextChange}
+              placeholder="Enter your email address"
+            />
             {/* Password */}
-            <FormTextField name='password' label='Password' type='password' value={formData.password} onChange={handleTextChange} placeholder="Enter your password" />
+            <FormTextField
+              name="password"
+              label="Password"
+              type="password"
+              value={formData.password}
+              onChange={handleTextChange}
+              placeholder="Enter your password"
+            />
             {/* Confirm Password */}
-            <FormTextField name='repassword' label='Confirm Password' type='password' value={formData.repassword} onChange={handleTextChange} placeholder="Enter confirm your password" />
+            <FormTextField
+              name="repassword"
+              label="Confirm Password"
+              type="password"
+              value={formData.repassword}
+              onChange={handleTextChange}
+              placeholder="Enter confirm your password"
+            />
 
             {/* GPS Setting */}
-            <CheckboxField name='isGpsEnabled' label='Enable GPS Location' checked={formData.isGpsEnabled} onChange={handleCheckboxChange} />
+            <CheckboxField
+              name="isGpsEnabled"
+              label="Enable GPS Location"
+              checked={formData.isGpsEnabled}
+              onChange={handleCheckboxChange}
+            />
             {/* Gender */}
-            <RadioGroupField name='gender' label='Gender' value={formData.gender} options={GENDER_OPTIONS} onChange={(value) => handleRadioChange('gender', value)} orientation='horizontal' />
+            <RadioGroupField
+              name="gender"
+              label="Gender"
+              value={formData.gender}
+              options={GENDER_OPTIONS}
+              onChange={(value) => handleRadioChange("gender", value)}
+              orientation="horizontal"
+            />
 
             {/* Sexual Orientation */}
-            <RadioGroupField name='sexual_orientation' label='Sexual Orientation' value={formData.sexual_orientation} options={ORIENTATION_OPTIONS} onChange={(value) => handleRadioChange('sexual_orientation', value)} orientation='vertical' capitalize />
+            <RadioGroupField
+              name="sexual_orientation"
+              label="Sexual Orientation"
+              value={formData.sexual_orientation}
+              options={ORIENTATION_OPTIONS}
+              onChange={(value) =>
+                handleRadioChange("sexual_orientation", value)}
+              orientation="vertical"
+              capitalize
+            />
 
             <SelectField
               name="prefecture"
@@ -110,5 +177,5 @@ export default function Page() {
         </AlertDialog.Portal>
       </AlertDialog.Root>
     </div>
-  )
+  );
 }

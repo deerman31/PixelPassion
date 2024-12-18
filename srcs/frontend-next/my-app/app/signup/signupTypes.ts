@@ -7,8 +7,8 @@ export interface SignUpFormData {
   password: string;
   repassword: string;
   isGpsEnabled: boolean;
-  gender: 'male' | 'female';
-  sexual_orientation: 'heterosexual' | 'homosexual' | 'bisexual';
+  gender: "male" | "female";
+  sexual_orientation: "heterosexual" | "homosexual" | "bisexual";
   eria: string;
 }
 // // 成功時のResponse型
@@ -21,15 +21,15 @@ export interface SignupErrorResponse {
 }
 
 export const initialSignUpFormData: SignUpFormData = {
-  username: '',
-  firstname: '',
-  lastname: '',
-  birthdate: '',
-  email: '',
-  password: '',
-  repassword: '',
+  username: "",
+  firstname: "",
+  lastname: "",
+  birthdate: "",
+  email: "",
+  password: "",
+  repassword: "",
   isGpsEnabled: false,
-  gender: 'male',
-  sexual_orientation: 'heterosexual',
-  eria: '',
+  gender: "male",
+  sexual_orientation: "heterosexual",
+  eria: "",
 };

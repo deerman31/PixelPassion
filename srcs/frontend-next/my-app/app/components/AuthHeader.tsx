@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from "next/link";
 
 export function AuthHeader() {
   return (
@@ -6,7 +6,9 @@ export function AuthHeader() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <span className="text-2xl font-bold text-emerald-600">PixelPassion</span>
+          <span className="text-2xl font-bold text-emerald-600">
+            PixelPassion
+          </span>
         </Link>
 
         {/* Navigation Buttons */}
@@ -26,5 +28,5 @@ export function AuthHeader() {
         </nav>
       </div>
     </header>
-  )
+  );
 }

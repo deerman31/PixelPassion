@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
-
 )
 
 func ValidateRefreshToken(db *sql.DB, userID int, tokenString string) (bool, error) {
@@ -17,9 +16,11 @@ func ValidateRefreshToken(db *sql.DB, userID int, tokenString string) (bool, err
 		}
 		return false, fmt.Errorf("database error: %w", err)
 	}
+
 	// 保存されているソルトを使用して入力されたトークンをハッシュ化
 	computedHash, err := hashTokenWithSalt(tokenString, storedSalt)
 	if err != nil {
+		fmt.Println(err.Error())
 		return false, err
 	}
 
@@ -32,4 +33,3 @@ func ValidateRefreshToken(db *sql.DB, userID int, tokenString string) (bool, err
 	// 比較が可能となる
 	return storedHash == computedHash, nil
 }
-

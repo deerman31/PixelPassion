@@ -6,8 +6,8 @@ export interface SettingFormData {
   password: string;
   repassword: string;
   isGpsEnabled: boolean;
-  gender: 'male' | 'female';
-  sexual_orientation: 'heterosexual' | 'homosexual' | 'bisexual';
+  gender: "male" | "female";
+  sexual_orientation: "heterosexual" | "homosexual" | "bisexual";
   eria: string;
 }
 // // 成功時のResponse型
@@ -20,16 +20,16 @@ export interface SettingErrorResponse {
 }
 
 export const initialSignUpFormData: SettingFormData = {
-  username: '',
-  firstname: '',
-  lastname: '',
-  email: '',
-  password: '',
-  repassword: '',
+  username: "",
+  firstname: "",
+  lastname: "",
+  email: "",
+  password: "",
+  repassword: "",
   isGpsEnabled: false,
-  gender: 'male',
-  sexual_orientation: 'heterosexual',
-  eria: '',
+  gender: "male",
+  sexual_orientation: "heterosexual",
+  eria: "",
 };
 
 export interface SettingUsernameFormData {
@@ -46,10 +46,10 @@ export interface SettingGpsEnabledFormData {
   isGpsEnabled: boolean;
 }
 export interface SettingGenderFormData {
-  gender: 'male' | 'female';
+  gender: "male" | "female";
 }
 export interface SettingSexualOrientationFormData {
-  sexual_orientation: 'heterosexual' | 'homosexual' | 'bisexual';
+  sexual_orientation: "heterosexual" | "homosexual" | "bisexual";
 }
 export interface SettingEriaFormData {
   eria: string;

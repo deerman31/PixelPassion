@@ -10,9 +10,9 @@ import (
 )
 
 func UpdateUsernameHandler(db *sql.DB) echo.HandlerFunc {
-	fmt.Println("UpdateUsernameHandler")
-
 	return func(c echo.Context) error {
+		fmt.Println("UpdateUsernameHandler")
+
 		claims, ok := c.Get("user").(*jwttokens.Claims)
 		if !ok {
 			return echo.NewHTTPError(http.StatusInternalServerError, "user claims not found")

@@ -30,7 +30,7 @@ interface UploadResponse {
     image: string;
 }
 
-export const useImageUpload = (onUploadSuccess?: (imageUrl: string) => void) => {
+export const useImageUpload = (onUploadSuccess?: () => void) => {
     const [uploadState, setUploadState] = useState<UploadState>({
         selectedFile: null,
         previewUrl: null,
@@ -58,14 +58,14 @@ export const useImageUpload = (onUploadSuccess?: (imageUrl: string) => void) => 
         }));
 
         try {
+            console.log("Uploading image...");
+
             const data = await makeAuthenticatedRequest<UploadResponse>("/api/update/image", {
                 method: "POST",
                 body: formData,
             });
+            console.log("Upload response:", data);
 
-            if (data && data.image) {
-                onUploadSuccess?.(data.image);
-            }
 
             setUploadState({
                 selectedFile: null,
@@ -73,6 +73,11 @@ export const useImageUpload = (onUploadSuccess?: (imageUrl: string) => void) => 
                 uploading: false,
                 error: null,
             });
+            // アップロード成功後にコールバックを呼び出す
+            if (onUploadSuccess) {
+                console.log("Calling onUploadSuccess callback");
+                onUploadSuccess();
+            }
         } catch (err) {
             setUploadState(prev => ({
                 ...prev,

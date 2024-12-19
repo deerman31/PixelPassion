@@ -1,13 +1,9 @@
 // app/dashboard/page.tsx
 
 import Link from "next/link"; // このインポートが抜けていた
-import { Header } from "../components/Header";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-
       <main className="flex-1">
         {/* Hero Section */}
         <section className="pt-24 pb-16 px-4 bg-black">
@@ -30,13 +26,5 @@ export default function Home() {
           </div>
         </section>
       </main>
-
-      {/* Footer */}
-      <footer className="bg-gray-50 py-8">
-        <div className="container mx-auto px-4 text-center text-gray-600">
-          <p>&copy; {new Date().getFullYear()} Matcha. All rights reserved.</p>
-        </div>
-      </footer>
-    </div>
   );
 }

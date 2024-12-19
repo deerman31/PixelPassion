@@ -1,7 +1,6 @@
 // app/dashboard/page.tsx
 "use client";
 
-import { Header } from "../../components/Header";
 import * as Form from "@radix-ui/react-form";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 
@@ -45,8 +44,6 @@ export default function Page() {
   } = useSettingForm();
 
   return (
-    <div className="min-h-screen bg-black">
-      <Header />
       <main className="pt-24 pb-16 px-4">
         <div className="max-w-md mx-auto bg-white rounded-lg shadow p-8">
           <Form.Root onSubmit={handleUsernameSubmit} className="space-y-4">
@@ -195,7 +192,7 @@ export default function Page() {
             <Form.Root className="space-y-4">
               <Form.Submit asChild>
                 <a
-                  href="/setting/image_upload"
+                  href="/dashboard/setting/image_upload"
                   className="block w-full bg-emerald-600 text-white text-center py-2 px-4 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors"
                 >
                   Upload Profile Image
@@ -204,7 +201,6 @@ export default function Page() {
             </Form.Root>
           </div>
         </div>
-      </main>
       {/* Error Dialog */}
       <AlertDialog.Root open={showError} onOpenChange={setShowError}>
         <AlertDialog.Portal>
@@ -227,6 +223,6 @@ export default function Page() {
           </AlertDialog.Content>
         </AlertDialog.Portal>
       </AlertDialog.Root>
-    </div>
+      </main>
   );
 }

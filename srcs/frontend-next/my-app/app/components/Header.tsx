@@ -66,25 +66,25 @@ export function Header() {
         {/* Navigation Buttons */}
         <nav className="flex items-center space-x-4">
           <Link
-            href="/setting"
+            href="/dashboard/setting"
             className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
           >
             Profile
           </Link>
           <Link
-            href="/setting"
+            href="/dashboard/setting"
             className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
           >
             Chat
           </Link>
           <Link
-            href="/setting"
+            href="/dashboard/setting"
             className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
           >
             Chat
           </Link>
           <Link
-            href="/setting"
+            href="/dashboard/setting"
             className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
           >
             Setting

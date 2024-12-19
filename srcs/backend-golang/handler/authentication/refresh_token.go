@@ -10,11 +10,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type RefreshTokenRequest struct {
-	AccessToken  string
-	RefreshToken string
-}
-
 type RefreshTokenResponse struct {
 	AccessToken string
 }
@@ -74,14 +69,14 @@ func RefreshTokenHandler(db *sql.DB) echo.HandlerFunc {
 	secretKey := os.Getenv("JWT_SECRET_KEY")
 	return func(c echo.Context) error {
 		fmt.Println("RefreshTokenHandler")
-		req := new(RefreshTokenRequest)
-		// requestのbodyをbind
-		if err := c.Bind(req); err != nil {
+
+		tokenString, err := jwttokens.GetAuthToken(c)
+		if err != nil {
 			return newErrorResponse(http.StatusBadRequest, "Invalid request body")
+
 		}
 
-		// access_tokenを検証
-		claims, err := VerifyTokenClaims(req.AccessToken, secretKey)
+		claims, err := jwttokens.ParseAndValidateRefreshToken(tokenString, secretKey)
 		if err != nil {
 			return newErrorResponse(http.StatusUnauthorized, err.Error())
 		}
@@ -95,7 +90,7 @@ func RefreshTokenHandler(db *sql.DB) echo.HandlerFunc {
 		}
 		defer tx.Rollback()
 
-		if err := handleTokenRefresh(db, tx, userID, req.RefreshToken); err != nil {
+		if err := handleTokenRefresh(db, tx, userID, tokenString); err != nil {
 			switch err {
 			case errUserNotFound:
 				return newErrorResponse(http.StatusNotFound, err.Error())

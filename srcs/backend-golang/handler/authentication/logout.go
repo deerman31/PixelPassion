@@ -7,8 +7,45 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
+
+func verifyTokenClaims(tokenString, secretKey string) (*jwttokens.Claims, error) {
+	// トークンの解析
+	token, err := jwt.ParseWithClaims(tokenString, &jwttokens.Claims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(secretKey), nil
+	})
+
+	// まず、署名が正しいかどうかに関係なくClaimsを取得
+	if token != nil { // tokenがnilでないことを確認
+		claims, ok := token.Claims.(*jwttokens.Claims)
+		if !ok {
+			return nil, fmt.Errorf("Invalid token claims")
+		}
+
+		// エラーがある場合でも、期限切れエラーのみの場合は claims を返す
+		if err != nil {
+			if err.Error() == "Token is expired" {
+				return claims, nil
+			}
+		}
+
+		// トークンタイプの検証
+		if claims.TokenType == jwttokens.RefreshToken {
+			return nil, fmt.Errorf("invalid token type: %v", claims.TokenType)
+		}
+
+		return claims, nil
+	}
+
+	// tokenがnilの場合やその他のエラーの場合
+	return nil, err
+}
+
 
 func LogoutHandler(db *sql.DB) echo.HandlerFunc {
 	secretKey := os.Getenv("JWT_SECRET_KEY")
@@ -24,7 +61,7 @@ func LogoutHandler(db *sql.DB) echo.HandlerFunc {
 			})
 		}
 		//claims, err := jwttokens.ParseAndValidateToken(tokenString, secretKey)
-		claims, err := VerifyTokenClaims(tokenString, secretKey)
+		claims, err := verifyTokenClaims(tokenString, secretKey)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
 		}

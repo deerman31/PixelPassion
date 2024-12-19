@@ -25,7 +25,7 @@ func JWTMiddleware() echo.MiddlewareFunc {
 					"error": err.Error(),
 				})
 			}
-			claims, err := jwttokens.ParseAndValidateToken(tokenString, config.SecretKey)
+			claims, err := jwttokens.ParseAndValidateAccessToken(tokenString, config.SecretKey)
 			if err != nil {
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
 			}

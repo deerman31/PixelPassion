@@ -1,20 +1,20 @@
 // app/dashboard/page.tsx
 "use client";
 
-import { Header } from "../components/Header";
+import { Header } from "../../components/Header";
 import * as Form from "@radix-ui/react-form";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 
-import { FormTextField } from "../components/FormTextField";
-import { CheckboxField } from "../components/CheckboxField";
-import { RadioGroupField } from "../components/RadioField";
+import { FormTextField } from "../../components/FormTextField";
+import { CheckboxField } from "../../components/CheckboxField";
+import { RadioGroupField } from "../../components/RadioField";
 import { useSettingForm } from "./useSettingForm";
 import {
   GENDER_OPTIONS,
   ORIENTATION_OPTIONS,
   PREFECTURES,
 } from "./formOptions";
-import { SelectField } from "../components/SelectField";
+import { SelectField } from "../../components/SelectField";
 
 export default function Page() {
   const {

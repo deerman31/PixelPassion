@@ -1,6 +1,6 @@
 "use client";
 
-import { Header } from "../../components/Header";
+import { Header } from "../../../components/Header";
 import * as Form from "@radix-ui/react-form";
 import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
 import { Upload } from "lucide-react";

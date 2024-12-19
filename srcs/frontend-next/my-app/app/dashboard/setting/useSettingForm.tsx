@@ -15,10 +15,8 @@ import {
     removeSessionAccessToken,
     removeSessionRefreshToken,
     setSessionAccessToken,
-} from "../utils/veridy_token";
+} from "../../utils/veridy_token";
 
-// すべてのフォームデータ型のユニオン型を定義
-//type FormDataType = EndpointFormDataMap[EndpointType];
 
 // エンドポイントと対応するフォームデータ型のマッピング
 interface EndpointFormDataMap {
@@ -50,18 +48,14 @@ const handleLogout = () => {
 };
 // アクセストークンのリフレッシュ関数
 const refreshAccessToken = async (): Promise<string> => {
-    const accessToken = getSessionAccessToken();
+    //const accessToken = getSessionAccessToken();
     const refreshToken = getSessionRefreshToken();
 
     const response = await fetch("/api/refresh", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
+            "Authorization": `Bearer ${refreshToken}`,
         },
-        body: JSON.stringify({
-            accessToken,
-            refreshToken,
-        }),
     });
     if (!response.ok) {
         const error = new Error("Token refresh failed") as AuthError;
@@ -76,37 +70,60 @@ const refreshAccessToken = async (): Promise<string> => {
     return data.AccessToken;
 };
 
+// 汎用的なAPIリクエストハンドラー
+const handleApiRequest = async <T extends EndpointType>(config: ApiRequestConfig<T>): Promise<Response> => {
+    const { endpoint, formData } = config;
+    const accessToken = getSessionAccessToken();
+
+    try {
+        return await makeApiRequest(endpoint, accessToken, formData);
+    } catch (err) {
+        const error = err as AuthError;
+        if (error.code === "ACCESS_TOKEN_EXPIRED") {
+            try {
+                const newAccessToken = await refreshAccessToken();
+                return await makeApiRequest(endpoint, newAccessToken, formData);
+            } catch (refreshErr) {
+                const refreshError = refreshErr as AuthError;
+                if (refreshError.code === "REFRESH_TOKEN_EXPIRED") {
+                    handleLogout();
+                    throw refreshError;
+                }
+                throw refreshErr;
+            }
+        }
+        throw error;
+    }
+};
+
+// 基本的なAPIリクエスト関数
+const makeApiRequest = async <T extends EndpointType>(endpoint: T, accessToken: string, formData: EndpointFormDataMap[T],
+): Promise<Response> => {
+    const response = await fetch(`/api/update/${endpoint}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(formData),
+    });
+    if (!response.ok) {
+        const errorData: SettingErrorResponse = await response.json();
+        const error = new Error(
+            errorData.error || `Update ${endpoint} failed`,
+        ) as AuthError;
+        error.code = response.status === 401
+            ? "ACCESS_TOKEN_EXPIRED"
+            : "UPDATE_FAILED";
+        throw error;
+    }
+    return response;
+};
+
 export const useSettingForm = () => {
     // エラー状態の管理
     const [error, setError] = useState<string>("");
     const [showError, setShowError] = useState<boolean>(false);
-
-
-    // 汎用的なAPIリクエストハンドラー
-    const handleApiRequest = async <T extends EndpointType>(config: ApiRequestConfig<T>): Promise<Response> => {
-        const { endpoint, formData } = config;
-        const accessToken = getSessionAccessToken();
-
-        try {
-            return await makeApiRequest(endpoint, accessToken, formData);
-        } catch (err) {
-            const error = err as AuthError;
-            if (error.code === "ACCESS_TOKEN_EXPIRED") {
-                try {
-                    const newAccessToken = await refreshAccessToken();
-                    return await makeApiRequest(endpoint, newAccessToken, formData);
-                } catch (refreshErr) {
-                    const refreshError = refreshErr as AuthError;
-                    if (refreshError.code === "REFRESH_TOKEN_EXPIRED") {
-                        handleLogout();
-                        throw refreshError;
-                    }
-                    throw refreshErr;
-                }
-            }
-            throw error;
-        }
-    };
 
     // 汎用的なフォーム送信ハンドラーを作成するファクトリー関数
     const createSubmitHandler = <T extends EndpointType>(endpoint: T) => {
@@ -123,30 +140,6 @@ export const useSettingForm = () => {
                 setShowError(true);
             }
         };
-    };
-
-    // 基本的なAPIリクエスト関数
-    const makeApiRequest = async <T extends EndpointType>(endpoint: T, accessToken: string, formData: EndpointFormDataMap[T],
-    ): Promise<Response> => {
-        const response = await fetch(`/api/update/${endpoint}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify(formData),
-        });
-        if (!response.ok) {
-            const errorData: SettingErrorResponse = await response.json();
-            const error = new Error(
-                errorData.error || `Update ${endpoint} failed`,
-            ) as AuthError;
-            error.code = response.status === 401
-                ? "ACCESS_TOKEN_EXPIRED"
-                : "UPDATE_FAILED";
-            throw error;
-        }
-        return response;
     };
 
     // 各Submit関数の実装

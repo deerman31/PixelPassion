@@ -11,7 +11,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-
 func SignupHandler(db *sql.DB) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		req := new(SignupRequest)
@@ -49,10 +48,6 @@ func SignupHandler(db *sql.DB) echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		}
 		req.Password = string(hashedBytes)
-
-		// fmt.Println("hashPassword------------ ")
-		// fmt.Println(req.Password)
-		// fmt.Println("hashPassword------------ ")
 
 		// ユーザーの登録
 		userID, err := createUser(tx, req)

@@ -3,7 +3,8 @@ FROM nginx:alpine
 
 # ビルド引数としてPORTを定義（デフォルト値を設定）
 ARG PORT
-ENV PORT=${PORT}
+#ENV PORT=${PORT}
+ENV PORT=${PROXY_NGINX_PORT}
 
 # タイムゾーンを日本時間に設定
 ENV TZ=Asia/Tokyo

@@ -8,8 +8,9 @@ import (
 	"log"
 	"os"
 
+	"backend-golang/middleware"
+
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -69,7 +70,7 @@ func main() {
 	e := echo.New()
 
 	// ミドルウェアの設定
-	setupMiddleware(e)
+	middleware.SetupMiddleware(e)
 
 	// カスタムバリデータの設定
 	e.Validator = validations.NewCustomValidator()
@@ -87,14 +88,4 @@ func portSet() (string, error) {
 		return "", fmt.Errorf("Error: BACKEND_GOLANG_PORT is not set")
 	}
 	return port, nil
-}
-
-func setupMiddleware(e *echo.Echo) {
-	// 基本的なミドルウェアの設定
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"}, // 本番環境では適切なオリジンに設定してください
-		AllowMethods: []string{echo.GET, echo.PUT, echo.POST, echo.PATCH, echo.DELETE},
-	}))
 }

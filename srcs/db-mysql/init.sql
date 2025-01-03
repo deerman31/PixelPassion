@@ -44,3 +44,55 @@ CREATE TABLE IF NOT EXISTS user_info (
     profile_image_path1 VARCHAR(255) DEFAULT NULL, /* プロフィール画像のパス */
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+-- tag master table
+CREATE TABLE IF NOT EXISTS tags (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- タグ名に対するインデックス
+CREATE INDEX idx_tag_name ON tags(name);
+
+-- ユーザーとタグの中間テーブル
+CREATE TABLE IF NOT EXISTS user_tags (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    tag_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY user_tag_unique (user_id, tag_id), /* 複合ユニーク制約を追加 */
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+);
+
+-- 複合インデックス
+CREATE INDEX idx_user_tag ON user_tags(user_id, tag_id);
+
+-- 初期タグデータ
+INSERT INTO tags (name) VALUES 
+    ('music'),
+    ('rugby'),
+    ('reading'),
+    ('travel'),
+    ('cooking'),
+    ('movie'),
+    ('art'),
+    ('anime'),
+    ('game'),
+    ('photo');
+
+
+CREATE TABLE IF NOT EXISTS user_locations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    latitude DECIMAL(10, 8) NOT NULL,  /* 緯度: -90 から 90 */
+    longitude DECIMAL(11, 8) NOT NULL, /* 経度: -180 から 180 */
+    accuracy DECIMAL(10, 2),           /* 精度（メートル） */
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    /* 位置情報の空間インデックス */
+    SPATIAL INDEX idx_location (point)
+);
